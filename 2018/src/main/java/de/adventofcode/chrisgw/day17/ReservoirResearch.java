@@ -385,7 +385,16 @@ public class ReservoirResearch {
             return;
         }
         Path puzzleInputFile = Paths.get(args[0]);
+        ReservoirResearch reservoirResearch = new ReservoirResearch(Files.readAllLines(puzzleInputFile));
+        System.out.println(reservoirResearch);
+        while (reservoirResearch.nextWaterSquare()) {
 
+        }
+        System.out.println(reservoirResearch);
+        int waterSquareCount = reservoirResearch.waterSquareCount();
+        System.out.println("waterSquareCount: " + waterSquareCount);
+        int restingWaterSquareCount = reservoirResearch.countRestingWater();
+        System.out.println("restingWaterSquareCount: " + restingWaterSquareCount);
     }
 
 }
