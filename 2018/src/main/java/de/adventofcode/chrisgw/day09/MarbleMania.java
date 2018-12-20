@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,25 +23,25 @@ public class MarbleMania {
     private int playerCount;
 
 
-    private Iterator<Marbel> marbelsToPlace;
+    private Iterator<Marble> marbelsToPlace;
 
-    private final Marbel firstMarbel;
-
-    @Getter
-    private Marbel currentMarbel;
+    private final Marble firstMarble;
 
     @Getter
-    private MarbelPlayer currentPlayer;
+    private Marble currentMarble;
+
+    @Getter
+    private MarblePlayer currentPlayer;
 
 
     public MarbleMania(int marbelCount, int playerCount) {
         this.marbelCount = marbelCount;
         this.playerCount = playerCount;
 
-        this.firstMarbel = new Marbel(0);
-        this.currentMarbel = firstMarbel;
+        this.firstMarble = new Marble(0);
+        this.currentMarble = firstMarble;
         this.currentPlayer = createMarbelPlayers(playerCount);
-        this.marbelsToPlace = IntStream.rangeClosed(1, marbelCount).mapToObj(Marbel::new).iterator();
+        this.marbelsToPlace = IntStream.rangeClosed(1, marbelCount).mapToObj(Marble::new).iterator();
     }
 
     public static MarbleMania fromMarbleManiaDescription(String marbleManiaDescription) {
@@ -59,16 +57,16 @@ public class MarbleMania {
     }
 
 
-    private MarbelPlayer createMarbelPlayers(int playerCount) {
-        MarbelPlayer firstMarbelPlayer = new MarbelPlayer(1);
-        MarbelPlayer currentPlayer = firstMarbelPlayer;
+    private MarblePlayer createMarbelPlayers(int playerCount) {
+        MarblePlayer firstMarblePlayer = new MarblePlayer(1);
+        MarblePlayer currentPlayer = firstMarblePlayer;
         for (int player = 2; player <= playerCount; player++) {
-            MarbelPlayer marbelPlayer = new MarbelPlayer(player);
-            currentPlayer.setNextPlayer(marbelPlayer);
-            currentPlayer = marbelPlayer;
+            MarblePlayer marblePlayer = new MarblePlayer(player);
+            currentPlayer.setNextPlayer(marblePlayer);
+            currentPlayer = marblePlayer;
         }
-        currentPlayer.setNextPlayer(firstMarbelPlayer);
-        return firstMarbelPlayer;
+        currentPlayer.setNextPlayer(firstMarblePlayer);
+        return firstMarblePlayer;
     }
 
 
@@ -76,15 +74,15 @@ public class MarbleMania {
         if (!marbelsToPlace.hasNext()) {
             throw new IllegalStateException("This MarbleMania is finished");
         }
-        Marbel nextMarbel = marbelsToPlace.next();
-        if (nextMarbel.isDivisibleBy(23)) {
-            Marbel removedMarbel = currentMarbel.removeMarbel(-7);
-            currentPlayer.addMarbel(removedMarbel);
-            currentPlayer.addMarbel(nextMarbel);
-            currentMarbel = removedMarbel.getClockwiseMarbel();
+        Marble nextMarble = marbelsToPlace.next();
+        if (nextMarble.isDivisibleBy(23)) {
+            Marble removedMarble = currentMarble.removeMarbel(-7);
+            currentPlayer.addMarbel(removedMarble);
+            currentPlayer.addMarbel(nextMarble);
+            currentMarble = removedMarble.getClockwiseMarble();
         } else {
-            currentMarbel.placeMarbelBetween(nextMarbel, 1, 2);
-            currentMarbel = nextMarbel;
+            currentMarble.placeMarbelBetween(nextMarble, 1, 2);
+            currentMarble = nextMarble;
         }
         currentPlayer = currentPlayer.getNextPlayer();
     }
@@ -94,48 +92,48 @@ public class MarbleMania {
         return !marbelsToPlace.hasNext();
     }
 
-    public MarbelPlayer bestPlayer() {
-        MarbelPlayer bestMarbelPlayer = bestPlayer(this::calculateScore);
-        bestMarbelPlayer.setScore(calculateScore(bestMarbelPlayer));
-        return bestMarbelPlayer;
+    public MarblePlayer bestPlayer() {
+        MarblePlayer bestMarblePlayer = bestPlayer(this::calculateScore);
+        bestMarblePlayer.setScore(calculateScore(bestMarblePlayer));
+        return bestMarblePlayer;
     }
 
-    private BigInteger calculateScore(MarbelPlayer marbelPlayer) {
-        return marbelPlayer.takenMarbels()
-                .mapToInt(Marbel::getValue)
+    private BigInteger calculateScore(MarblePlayer marblePlayer) {
+        return marblePlayer.takenMarbels()
+                .mapToInt(Marble::getValue)
                 .mapToObj(BigInteger::valueOf)
                 .reduce(BigInteger.ZERO, BigInteger::add);
     }
 
 
-    private MarbelPlayer bestPlayer(Function<MarbelPlayer, BigInteger> marbleScoreFunction) {
+    private MarblePlayer bestPlayer(Function<MarblePlayer, BigInteger> marbleScoreFunction) {
         return marbelPlayers().max(Comparator.comparing(marbleScoreFunction)).orElse(null);
     }
 
 
-    public Stream<MarbelPlayer> marbelPlayers() {
-        return Stream.iterate(currentPlayer, MarbelPlayer::getNextPlayer).limit(playerCount);
+    public Stream<MarblePlayer> marbelPlayers() {
+        return Stream.iterate(currentPlayer, MarblePlayer::getNextPlayer).limit(playerCount);
     }
 
-    public Stream<Marbel> marbels() {
-        return Stream.iterate(firstMarbel, Marbel::getClockwiseMarbel)
+    public Stream<Marble> marbels() {
+        return Stream.iterate(firstMarble, Marble::getClockwiseMarble)
                 .limit(Math.min(currentMarbelValue() + 1, marbelCount));
     }
 
 
     private int currentMarbelValue() {
-        return currentMarbel.getValue();
+        return currentMarble.getValue();
     }
 
 
     @Override
     public String toString() {
         int playerId = currentPlayer.getPlayerId();
-        String joinedMarbelStr = marbels().map(marbel -> {
-            if (marbel.equals(currentMarbel)) {
-                return String.format("(%2d)", marbel.getValue());
+        String joinedMarbelStr = marbels().map(marble -> {
+            if (marble.equals(currentMarble)) {
+                return String.format("(%2d)", marble.getValue());
             } else {
-                return String.format(" %2d ", marbel.getValue());
+                return String.format(" %2d ", marble.getValue());
             }
         }).collect(Collectors.joining(""));
         return String.format("[%2d] ", playerId) + joinedMarbelStr;

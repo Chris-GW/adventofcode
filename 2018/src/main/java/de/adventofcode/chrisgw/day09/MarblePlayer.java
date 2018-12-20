@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 @ToString
 @EqualsAndHashCode
-public class MarbelPlayer {
+public class MarblePlayer {
 
     @Getter
     private final int playerId;
@@ -22,32 +22,32 @@ public class MarbelPlayer {
     @Setter
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private MarbelPlayer nextPlayer;
+    private MarblePlayer nextPlayer;
 
-    private List<Marbel> takenMarbels = new ArrayList<>();
+    private List<Marble> takenMarbles = new ArrayList<>();
 
     @Getter
     @Setter
     private BigInteger score;
 
 
-    public MarbelPlayer(int playerId) {
+    public MarblePlayer(int playerId) {
         this.playerId = playerId;
         this.nextPlayer = this;
     }
 
 
-    public void addMarbel(Marbel marbel) {
-        takenMarbels.add(marbel);
+    public void addMarbel(Marble marble) {
+        takenMarbles.add(marble);
     }
 
 
-    public Stream<Marbel> takenMarbels() {
-        return takenMarbels.stream();
+    public Stream<Marble> takenMarbels() {
+        return takenMarbles.stream();
     }
 
-    public Marbel lastTakenMarbel() {
-        return takenMarbels.get(takenMarbels.size() - 1);
+    public Marble lastTakenMarbel() {
+        return takenMarbles.get(takenMarbles.size() - 1);
     }
 
 }

@@ -1,6 +1,5 @@
 package de.adventofcode.chrisgw.day09;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -22,7 +21,7 @@ public class MarbleManiaTest {
             marbleMania.nextPlayerPlaceNextMarbel();
             System.out.println(marbleMania);
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayer", expectedBestPlayer, bestPlayer.getPlayerId());
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
@@ -37,7 +36,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -50,7 +49,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -63,7 +62,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -76,7 +75,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -89,7 +88,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -103,7 +102,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
@@ -120,7 +119,7 @@ public class MarbleManiaTest {
         while (!marbleMania.isFinished()) {
             marbleMania.nextPlayerPlaceNextMarbel();
         }
-        MarbelPlayer bestPlayer = marbleMania.bestPlayer();
+        MarblePlayer bestPlayer = marbleMania.bestPlayer();
         assertEquals("bestPlayerScore", expectedBestPlayerScore, bestPlayer.getScore());
     }
 
