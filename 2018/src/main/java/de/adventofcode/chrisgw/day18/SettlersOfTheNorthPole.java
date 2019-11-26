@@ -1,22 +1,23 @@
 package de.adventofcode.chrisgw.day18;
 
 import lombok.Data;
+import lombok.Setter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
+import static de.adventofcode.chrisgw.day18.SettlersOfTheNorthPole.LandAcreType.*;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
+import static lombok.AccessLevel.PRIVATE;
 
 
 public class SettlersOfTheNorthPole {
 
     private LandAcre[][] area;
     private int elapsedMinutes;
+    private LinkedHashSet<SettlersOfTheNorthPole> seenLandAcres = new LinkedHashSet<>();
 
 
     private SettlersOfTheNorthPole(int size) {
@@ -31,56 +32,86 @@ public class SettlersOfTheNorthPole {
             String row = northPoleAcresString.get(y);
             for (int x = 0; x < row.length(); x++) {
                 char symbol = row.charAt(x);
-                LandAcreType type = LandAcreType.fromSymbol(symbol);
-                LandAcre landAcre = northPole.new LandAcre(x, y, type);
-                northPole.setLandArce(landAcre);
+                LandAcre landAcre = northPole.new LandAcre(x, y);
+                landAcre.setType(LandAcreType.fromSymbol(symbol));
+                northPole.setLandAcre(landAcre);
             }
         }
         return northPole;
     }
 
 
+    public SettlersOfTheNorthPole toMinute(int minute) {
+        SettlersOfTheNorthPole northPole = this;
+        for (int min = elapsedMinutes; min < minute; min++) {
+            northPole = nextMinute();
+        }
+        return northPole;
+    }
+
+
     public SettlersOfTheNorthPole nextMinute() {
-        SettlersOfTheNorthPole next = new SettlersOfTheNorthPole(getSize());
-        next.elapsedMinutes = this.elapsedMinutes + 1;
-        landArces().map(LandAcre::nextMinute).forEach(next::setLandArce);
-        return next;
+        if (seenLandAcres.contains(this)) {
+            Iterator<SettlersOfTheNorthPole> iterator = seenLandAcres.iterator();
+            while (iterator.hasNext()) {
+                if (this.equals(iterator.next())) {
+                    return iterator.next();
+                }
+            }
+        }
+
+        SettlersOfTheNorthPole newNorthPole = new SettlersOfTheNorthPole(getSize());
+        newNorthPole.elapsedMinutes = this.elapsedMinutes + 1;
+        newNorthPole.seenLandAcres = this.seenLandAcres;
+        Iterator<LandAcre> landAcreIterator = landAcres().iterator();
+        while (landAcreIterator.hasNext()) {
+            LandAcre landAcre = landAcreIterator.next();
+            LandAcreType mextLandAcreType = landAcre.nextMinute();
+            LandAcre newLandAcre = newNorthPole.new LandAcre(landAcre.getX(), landAcre.getY());
+            newLandAcre.setType(mextLandAcreType);
+            newNorthPole.setLandAcre(newLandAcre);
+        }
+        seenLandAcres.add(this);
+        return newNorthPole;
     }
 
 
-    public long resourceValue() {
-        Map<LandAcreType, Long> acreTypeCount = countLandArcesByType();
-        long treeCount = acreTypeCount.getOrDefault(LandAcreType.TREES, 0L);
-        long lumberyardCount = acreTypeCount.getOrDefault(LandAcreType.LUMBERYARD, 0L);
-        return treeCount * lumberyardCount;
-    }
-
-    public Stream<LandAcre> landArces() {
+    public Stream<LandAcre> landAcres() {
         return Arrays.stream(area).flatMap(Arrays::stream);
     }
 
-    public Map<LandAcreType, Long> countLandArcesByType() {
-        return landArces().collect(groupingBy(LandAcre::getType, counting()));
+    public Map<LandAcreType, Long> countLandAcresByType() {
+        return landAcres().collect(groupingBy(LandAcre::getType, counting()));
+    }
+
+    public long resourceValue() {
+        Map<LandAcreType, Long> acreTypeCount = countLandAcresByType();
+        long treeCount = acreTypeCount.getOrDefault(TREES, 0L);
+        long lumberyardCount = acreTypeCount.getOrDefault(LUMBERYARD, 0L);
+        return treeCount * lumberyardCount;
     }
 
 
     public LandAcre landAcreAt(int x, int y) {
-        if (isValidLanAcreLocation(x, y)) {
-            return area[y][x];
+        if (!isValidLanAcreLocation(x, y)) {
+            throw new IndexOutOfBoundsException(
+                    String.format("LandAcre (x=%d; y=%d) is out of bounds with area size=%d", x, y, getSize()));
         }
-        return null;
-    }
-
-    private void setLandArce(LandAcre landArce) {
-        if (landArce == null || !isValidLanAcreLocation(landArce.getX(), landArce.getY())) {
-            throw new IllegalArgumentException(
-                    "Given LandArce doesn't fit in this area with an size = " + getSize() + ": " + landArce);
-        }
-        area[landArce.getY()][landArce.getX()] = landArce;
+        return area[y][x];
     }
 
     public boolean isValidLanAcreLocation(int x, int y) {
         return 0 <= x && x < getSize() && 0 <= y && y < getSize();
+    }
+
+    private void setLandAcre(LandAcre landAcre) {
+        int x = landAcre.getX();
+        int y = landAcre.getY();
+        if (!isValidLanAcreLocation(x, y)) {
+            throw new IllegalArgumentException(
+                    "Given LandAcre doesn't fit in this area with an size = " + getSize() + ": " + landAcre);
+        }
+        area[y][x] = landAcre;
     }
 
 
@@ -93,14 +124,31 @@ public class SettlersOfTheNorthPole {
     }
 
 
+    public boolean hasSameLandAcre(SettlersOfTheNorthPole otherLandAcre) {
+        return Arrays.deepEquals(this.area, otherLandAcre.area);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(area);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SettlersOfTheNorthPole)) {
+            return false;
+        }
+        SettlersOfTheNorthPole that = (SettlersOfTheNorthPole) o;
+        return Arrays.deepEquals(this.area, that.area);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder((getSize() + 1) * getSize());
-        if (elapsedMinutes == 0) {
-            sb.append("Initial state:\n");
-        } else {
-            sb.append("After ").append(elapsedMinutes).append(" minutes:\n");
-        }
+        appendElapsedMinutesHeader(sb);
 
         for (int y = 0; y < getSize(); y++) {
             for (int x = 0; x < getSize(); x++) {
@@ -114,21 +162,28 @@ public class SettlersOfTheNorthPole {
         return sb.toString();
     }
 
+    private void appendElapsedMinutesHeader(StringBuilder sb) {
+        if (elapsedMinutes == 0) {
+            sb.append("Initial state:\n");
+        } else if (elapsedMinutes == 1) {
+            sb.append("After ").append(elapsedMinutes).append(" minute:\n");
+        } else {
+            sb.append("After ").append(elapsedMinutes).append(" minutes:\n");
+        }
+    }
+
 
     @Data
     public class LandAcre {
 
         private final int x;
         private final int y;
-        private final LandAcreType type;
+
+        @Setter(PRIVATE)
+        private LandAcreType type;
 
 
-        public LandAcre withType(LandAcreType type) {
-            return new LandAcre(this.x, this.y, type);
-        }
-
-
-        public LandAcre nextMinute() {
+        public LandAcreType nextMinute() {
             switch (type) {
             case OPEN_GROUND:
                 return openGroundChangeRule();
@@ -137,59 +192,61 @@ public class SettlersOfTheNorthPole {
             case LUMBERYARD:
                 return lumberyardChangeRule();
             default:
-                throw new IllegalStateException("unexpected LandAcreType: " + type);
+                throw new IllegalStateException("unexpected type: " + type);
+            }
+        }
+
+
+        private LandAcreType openGroundChangeRule() {
+            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandAcresByType();
+            long adjacentTrees = adjacentlandAcreTypes.getOrDefault(TREES, 0L);
+            if (adjacentTrees >= 3) {
+                return TREES;
+            }
+            return this.getType();
+        }
+
+        private LandAcreType treeChangeRule() {
+            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandAcresByType();
+            long adjacentLumberYards = adjacentlandAcreTypes.getOrDefault(LUMBERYARD, 0L);
+            if (adjacentLumberYards >= 3) {
+                return LUMBERYARD;
+            }
+            return this.getType();
+        }
+
+        private LandAcreType lumberyardChangeRule() {
+            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandAcresByType();
+            long adjacentLumberYards = adjacentlandAcreTypes.getOrDefault(LUMBERYARD, 0L);
+            long adjacentTrees = adjacentlandAcreTypes.getOrDefault(TREES, 0L);
+            if (adjacentLumberYards >= 1 && adjacentTrees >= 1) {
+                return LUMBERYARD;
+            } else {
+                return OPEN_GROUND;
             }
         }
 
 
         public Stream<LandAcre> adjacentLandAcres() {
-            Builder<LandAcre> adjacentLandArces = Stream.builder();
+            Builder<LandAcre> adjacentLandAcres = Stream.builder();
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dx = -1; dx <= 1; dx++) {
                     if (dy == 0 && dx == 0) {
                         continue;
                     }
-                    LandAcre adjacentLandAcre = landAcreAt(x + dx, y + dy);
-                    adjacentLandArces.add(adjacentLandAcre);
+                    int x = getX() + dx;
+                    int y = getY() + dy;
+                    if (isValidLanAcreLocation(x, y)) {
+                        LandAcre adjacentLandAcre = landAcreAt(x, y);
+                        adjacentLandAcres.add(adjacentLandAcre);
+                    }
                 }
             }
-            return adjacentLandArces.build().filter(Objects::nonNull);
+            return adjacentLandAcres.build();
         }
 
-        public Map<LandAcreType, Long> countAdjacentLandArcesByType() {
+        public Map<LandAcreType, Long> countAdjacentLandAcresByType() {
             return adjacentLandAcres().collect(groupingBy(LandAcre::getType, counting()));
-        }
-
-
-        private LandAcre openGroundChangeRule() {
-            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandArcesByType();
-            long adjacentTrees = adjacentlandAcreTypes.getOrDefault(LandAcreType.TREES, 0L);
-            if (adjacentTrees >= 3) {
-                return withType(LandAcreType.TREES);
-            } else {
-                return this;
-            }
-        }
-
-        private LandAcre treeChangeRule() {
-            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandArcesByType();
-            long adjacentLumberYards = adjacentlandAcreTypes.getOrDefault(LandAcreType.LUMBERYARD, 0L);
-            if (adjacentLumberYards >= 3) {
-                return withType(LandAcreType.LUMBERYARD);
-            } else {
-                return this;
-            }
-        }
-
-        private LandAcre lumberyardChangeRule() {
-            Map<LandAcreType, Long> adjacentlandAcreTypes = countAdjacentLandArcesByType();
-            long adjacentLumberYards = adjacentlandAcreTypes.getOrDefault(LandAcreType.LUMBERYARD, 0L);
-            long adjacentTrees = adjacentlandAcreTypes.getOrDefault(LandAcreType.TREES, 0L);
-            if (adjacentLumberYards >= 1 && adjacentTrees >= 1) {
-                return withType(LandAcreType.LUMBERYARD);
-            } else {
-                return withType(LandAcreType.OPEN_GROUND);
-            }
         }
 
     }
