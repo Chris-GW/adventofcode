@@ -1,6 +1,7 @@
 package de.adventofcode.chrisgw.day22;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 
 /**
@@ -9,25 +10,62 @@ import java.util.List;
  */
 public class AdventOfCodeDay22 {
 
+    private final CaveSquareRegion[][] cave;
+    private final CaveSquareRegion targetRegion;
+    private final int depth;
 
-    private CaveSquareRegion[][] caveRegion;
-    private CaveSquareRegion targetRegion;
 
+    public AdventOfCodeDay22(int depth, int[] target) {
+        this.depth = depth;
+        this.targetRegion = new CaveSquareRegion(target[0], target[1]);
 
-    public AdventOfCodeDay22(CaveSquareRegion[][] caveRegion, CaveSquareRegion targetRegion) {
-        this.caveRegion = caveRegion;
-        this.targetRegion = targetRegion;
+        this.cave = new CaveSquareRegion[caveHeight()][caveWidth()];
+        for (int y = 0; y < caveHeight(); y++) {
+            for (int x = 0; x < caveWidth(); x++) {
+                this.cave[y][x] = new CaveSquareRegion(x, y);
+            }
+        }
     }
 
-    public static AdventOfCodeDay22 parseCaveScan(List<String> caveScan) {
-        CaveSquareRegion[][] caveRegion = null;
-        CaveSquareRegion targetRegion = null;
-        return new AdventOfCodeDay22(caveRegion, targetRegion);
+
+    public int toalRiskLevel() {
+        return caveRegions().map(CaveSquareRegion::getCaveReqionType).mapToInt(CaveReqionType::getRiskLevel).sum();
+    }
+
+
+    public Stream<CaveSquareRegion> caveRegions() {
+        return Arrays.stream(cave).flatMap(Arrays::stream);
     }
 
 
     public CaveSquareRegion caveRegionAt(int x, int y) {
-        return caveRegion[y][x];
+        return cave[y][x];
+    }
+
+
+    public int caveWidth() {
+        return targetRegion.getX();
+    }
+
+    public int caveHeight() {
+        return targetRegion.getY();
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int y = 0; y < caveHeight(); y++) {
+            for (int x = 0; x < caveWidth(); x++) {
+                CaveSquareRegion caveRegion = caveRegionAt(x, y);
+                CaveReqionType caveReqionType = caveRegion.getCaveReqionType();
+                sb.append(caveReqionType.getTypeSign());
+            }
+            sb.append("\n");
+        }
+        sb.setCharAt(0, 'M');
+        sb.setCharAt(sb.length() - 2, 'T');
+        return sb.toString();
     }
 
 
@@ -35,13 +73,13 @@ public class AdventOfCodeDay22 {
 
         private final int x;
         private final int y;
-        private final int depth;
+        private int geologicIndex = -1;
+        private int erosionLevel = -1;
 
 
-        public CaveSquareRegion(int x, int y, int depth) {
+        public CaveSquareRegion(int x, int y) {
             this.x = x;
             this.y = y;
-            this.depth = depth;
         }
 
 
@@ -53,32 +91,34 @@ public class AdventOfCodeDay22 {
             return y;
         }
 
-        public int getDepth() {
-            return depth;
-        }
-
 
         public int geologicIndex() {
-            if (isMouthOfCave() || isTargetRegion()) {
-                return 0;
-            } else if (y == 0) {
-                return x * 16807;
-            } else if (x == 0) {
-                return y * 48271;
-            } else {
-                int erosionLevelX = caveRegionAt(x - 1, y).erosionLevel();
-                int erosionLevelY = caveRegionAt(x, y - 1).erosionLevel();
-                return erosionLevelX * erosionLevelY;
+            if (geologicIndex == -1) {
+                if (isMouthOfCave() || isTargetRegion()) {
+                    return 0;
+                } else if (y == 0) {
+                    return x * 16807;
+                } else if (x == 0) {
+                    return y * 48271;
+                } else {
+                    int erosionLevelX = caveRegionAt(x - 1, y).erosionLevel();
+                    int erosionLevelY = caveRegionAt(x, y - 1).erosionLevel();
+                    geologicIndex = erosionLevelX * erosionLevelY;
+                }
             }
+            return geologicIndex;
         }
 
         public int erosionLevel() {
-            return (geologicIndex() + depth) % 20183;
+            if (erosionLevel == -1) {
+                erosionLevel = (geologicIndex() + depth) % 20183;
+            }
+            return erosionLevel;
         }
 
 
         private boolean isTargetRegion() {
-            return equals(targetRegion);
+            return this.x == targetRegion.x && this.y == targetRegion.y;
         }
 
 
@@ -89,23 +129,9 @@ public class AdventOfCodeDay22 {
 
         public CaveReqionType getCaveReqionType() {
             int erosionLevel = erosionLevel() % 3;
-            switch (erosionLevel) {
-            case 0:
-                return CaveReqionType.ROCKY;
-            case 1:
-                return CaveReqionType.WET;
-            case 2:
-            default:
-                return CaveReqionType.NARROW;
-            }
+            return CaveReqionType.fromRiskLevel(erosionLevel);
         }
 
-
-    }
-
-
-    public enum CaveReqionType {
-        ROCKY, NARROW, WET;
     }
 
 }

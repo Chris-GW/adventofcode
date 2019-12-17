@@ -19,6 +19,7 @@ public class TestUtils {
         }
     }
 
+
     public static Path getResourcePath(String classpathResource) throws URISyntaxException {
         URL classpathResourceURL = TestUtils.class.getResource(classpathResource);
         return Paths.get(classpathResourceURL.toURI());

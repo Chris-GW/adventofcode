@@ -12,6 +12,12 @@
         </processorPath>
         <module name="advent-of-code-2019" />
       </profile>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="Advent-of-Code-2018" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="Advent-of-Code-2016" target="1.8" />
