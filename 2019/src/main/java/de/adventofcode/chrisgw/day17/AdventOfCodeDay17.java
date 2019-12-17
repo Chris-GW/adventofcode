@@ -19,6 +19,8 @@ public class AdventOfCodeDay17 {
     private final IntCodeProgram asciiProgram;
     private String cameraImage;
 
+    private boolean continuousVideoFeed;
+
 
     public AdventOfCodeDay17(IntCodeProgram asciiProgram) {
         this.asciiProgram = requireNonNull(asciiProgram);
@@ -52,19 +54,73 @@ public class AdventOfCodeDay17 {
     private boolean isScaffoldIntersection(int index) {
         int row = row(index);
         int column = column(index);
-        boolean rowIsScaffoldPixel = IntStream.rangeClosed(-1, 1)
-                .mapToObj(drow -> cameraPixelAt(column, row + drow))
-                .allMatch(CameraPixel::isScaffoldPixel);
-        boolean columnIsScaffoldPixel = IntStream.rangeClosed(-1, 1)
-                .mapToObj(dcolumn -> cameraPixelAt(column + dcolumn, row))
-                .allMatch(CameraPixel::isScaffoldPixel);
-        return rowIsScaffoldPixel && columnIsScaffoldPixel;
+        return adjecentCameraPixels(row, column).allMatch(CameraPixel::isScaffoldPixel);
+    }
+
+    private Stream<CameraPixel> adjecentCameraPixels(int row, int column) {
+        Stream<CameraPixel> adjecentCameraPixelColumn = IntStream.rangeClosed(-1, 1)
+                .mapToObj(drow -> cameraPixelAt(column, row + drow));
+        Stream<CameraPixel> adjecentCameraPixelRow = IntStream.rangeClosed(-1, 1)
+                .mapToObj(dcolumn -> cameraPixelAt(column + dcolumn, row));
+        return Stream.concat(adjecentCameraPixelColumn, adjecentCameraPixelRow);
+    }
+
+
+    public void visitScaffoldAtLeastOnce() {
+        wakeUpVacuumRobot();
+        inputMainMovementRoutine();
+        inputMovementFunctions();
+        inputContinousVideoFeed();
+    }
+
+
+    private void wakeUpVacuumRobot() {
+        asciiProgram.setValueAt(0, 2);
+    }
+
+
+    private void inputMainMovementRoutine() {
+        asciiProgram.addInput('A');
+        asciiProgram.addInput('B');
+        asciiProgram.addInput('C');
+        asciiProgram.addInput('\n');
+    }
+
+    private void inputMovementFunctions() {
+        for (int i = 0; i < 3; i++) {
+            int stepsForward = '0' + i + 1;
+            asciiProgram.addInput(stepsForward);
+            asciiProgram.addInput('\n');
+        }
+    }
+
+
+    private void inputContinousVideoFeed() {
+        if (continuousVideoFeed) {
+            asciiProgram.addInput('y');
+        } else {
+            asciiProgram.addInput('n');
+        }
+        asciiProgram.addInput('\n');
+    }
+
+
+    public RobotMovementFunction completePath() {
+        VacuumRobot vacuumRobot = new VacuumRobot(this);
+        RobotMovementFunction completeMovement = vacuumRobot.followScaffold();
+        // TODO completePath
+        return completeMovement;
     }
 
 
     public AdventOfCodeDay17 withCameraImage(String cameraImageStr) {
         this.cameraImage = cameraImageStr;
         return this;
+    }
+
+
+    public void setContinuousVideoFeed(boolean continuousVideoFeed) {
+        this.continuousVideoFeed = continuousVideoFeed;
     }
 
 
