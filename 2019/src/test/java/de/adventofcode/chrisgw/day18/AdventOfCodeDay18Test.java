@@ -94,7 +94,7 @@ public class AdventOfCodeDay18Test {
     @Test
     public void myPuzzleInput_part01_shortestPath() {
         List<String> tunnelMap = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay18.txt");
-        int expectedSteps = 4824; // too high
+        int expectedSteps = 4790; // too high?
 
         AdventOfCodeDay18 aocDay18 = new AdventOfCodeDay18(tunnelMap);
         AdventOfCodeDay18 shortestPath = aocDay18.findShortestPath();

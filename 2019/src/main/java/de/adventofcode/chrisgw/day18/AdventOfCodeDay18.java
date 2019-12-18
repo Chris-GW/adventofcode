@@ -1,10 +1,8 @@
 package de.adventofcode.chrisgw.day18;
 
 import de.adventofcode.chrisgw.day03.Direction;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,26 +16,26 @@ import static de.adventofcode.chrisgw.day18.ValutTunnelType.KEY;
  * 2019 Day 18: Many-Worlds Interpretation
  * https://adventofcode.com/2019/day/18
  */
-public class AdventOfCodeDay18 implements Comparable<AdventOfCodeDay18> {
+public class AdventOfCodeDay18 {
 
     private final VaultTunnel[][] tunnelSystem;
-    private final int neededKeys;
+    private VaultTunnel entrance;
+    private Set<VaultTunnel> keys = new HashSet<>();
+    private List<VaultPath> vaultTunnelPaths = new ArrayList<>();
 
-    private Set<VaultTunnel> collectedKeys = new LinkedHashSet<>();
-    private VaultTunnel position;
-    private int steps = 0;
+    private List<VaultPath> takenPaths = new ArrayList<>();
 
 
     public AdventOfCodeDay18(AdventOfCodeDay18 other) {
         this.tunnelSystem = other.tunnelSystem;
-        this.neededKeys = other.neededKeys;
-        this.collectedKeys = new HashSet<>(other.collectedKeys);
-        this.position = other.position;
-        this.steps = other.steps;
+        this.entrance = other.entrance;
+        this.keys = other.keys;
+        this.vaultTunnelPaths = other.vaultTunnelPaths;
+        this.takenPaths = new ArrayList<>(other.takenPaths);
     }
 
     public AdventOfCodeDay18(List<String> vaultTunnelMapLines) {
-        int neededKeys = 0;
+        VaultTunnel entrance = null;
         tunnelSystem = new VaultTunnel[vaultTunnelMapLines.size()][];
         for (int y = 0; y < vaultTunnelMapLines.size(); y++) {
             String line = vaultTunnelMapLines.get(y);
@@ -49,13 +47,13 @@ public class AdventOfCodeDay18 implements Comparable<AdventOfCodeDay18> {
                 tunnelSystem[y][x] = vaultTunnel;
 
                 if (ENTRANCE.equals(tunnelType)) {
-                    position = vaultTunnel;
+                    entrance = vaultTunnel;
                 } else if (KEY.equals(tunnelType)) {
-                    neededKeys++;
+                    keys.add(vaultTunnel);
                 }
             }
         }
-        this.neededKeys = neededKeys;
+        this.entrance = entrance;
     }
 
 
@@ -66,7 +64,7 @@ public class AdventOfCodeDay18 implements Comparable<AdventOfCodeDay18> {
         } else if (mapSign == '#') {
             return new VaultTunnel(x, y, ValutTunnelType.WALL);
         } else if (mapSign == '@') {
-            return new VaultTunnel(x, y, ENTRANCE);
+            return new VaultTunnel(x, y, ENTRANCE, "0");
         } else if (Character.isUpperCase(mapSign)) {
             return new VaultTunnel(x, y, ValutTunnelType.DOOR, key);
         } else if (Character.isLowerCase(mapSign)) {
@@ -78,72 +76,93 @@ public class AdventOfCodeDay18 implements Comparable<AdventOfCodeDay18> {
 
 
     public AdventOfCodeDay18 findShortestPath() {
-        AtomicInteger bestSteps = new AtomicInteger(Integer.MAX_VALUE);
-        AtomicInteger unchanged = new AtomicInteger(500000);
-        List<AdventOfCodeDay18> moves = possibleNextMoves(bestSteps, unchanged).collect(Collectors.toList());
-        return moves.stream().min(Comparator.comparingInt(AdventOfCodeDay18::getSteps)).orElseThrow();
+        this.vaultTunnelPaths = paths().collect(Collectors.toList());
+        this.vaultTunnelPaths.forEach(System.out::println);
+        return possibleNextMoves().min(Comparator.comparingInt(AdventOfCodeDay18::getSteps)).orElseThrow();
     }
 
-    private Stream<AdventOfCodeDay18> possibleNextMoves(AtomicInteger bestSteps, AtomicInteger unchanged) {
-        if (unchanged.get() < 0 || steps > bestSteps.get()) {
-            return Stream.empty();
-        }
-        if (collectedAllKeys() && steps < bestSteps.get()) {
-            bestSteps.set(steps);
-            unchanged.set(500000);
+
+    private Stream<AdventOfCodeDay18> possibleNextMoves() {
+        if (collectedAllKeys()) {
             return Stream.of(this);
-        } else {
-            unchanged.getAndDecrement();
         }
-        List<AdventOfCodeDay18> possibleMoves = reachableTunnels().map(this::moveTo).collect(Collectors.toList());
-        return possibleMoves.stream()
-                .flatMap(adventOfCodeDay18 -> adventOfCodeDay18.possibleNextMoves(bestSteps, unchanged));
+        List<VaultPath> nextPaths = possibleNextPaths().collect(Collectors.toList());
+        List<AdventOfCodeDay18> possibleMoves = nextPaths.stream().map(this::followPath).collect(Collectors.toList());
+        return possibleMoves.stream().flatMap(AdventOfCodeDay18::possibleNextMoves);
     }
 
-    private AdventOfCodeDay18 moveTo(Pair<VaultTunnel, Integer> newPositionWithDistance) {
-        VaultTunnel newPosition = newPositionWithDistance.getFirst();
-        int neededSteps = newPositionWithDistance.getSecond();
-        AdventOfCodeDay18 newAoc18 = new AdventOfCodeDay18(this);
-        newAoc18.position = newPosition;
-        newAoc18.steps += neededSteps;
-        if (isCollectableKey(newPosition)) {
-            newAoc18.collectedKeys.add(newPosition);
-        } else {
-            throw new IllegalArgumentException("Given move doesn't pickup key");
+    private Stream<VaultPath> possibleNextPaths() {
+        List<VaultPath> connectedPaths = vaultTunnelPaths.stream()
+                .filter(vaultPath -> currentPosition().equals(vaultPath.getFrom()))
+                .collect(Collectors.toList());
+        return connectedPaths.stream().filter(this::canFollowPath);
+
+    }
+
+    private boolean canFollowPath(VaultPath path) {
+        boolean isConnectablePath = currentPosition().equals(path.getFrom());
+        return isConnectablePath && collectsNewNeededKey(path) && canUnlockAllDoorAlongPath(path);
+    }
+
+    private boolean collectsNewNeededKey(VaultPath path) {
+        return collectedKeys().noneMatch(path.collectedKey()::equalsIgnoreCase);
+    }
+
+    private boolean canUnlockAllDoorAlongPath(VaultPath path) {
+        return path.getNeededKeys().stream().allMatch(key -> collectedKeys().anyMatch(key::equalsIgnoreCase));
+    }
+
+    public VaultTunnel currentPosition() {
+        if (takenPaths.isEmpty()) {
+            return entrance;
         }
+        VaultPath lastPath = takenPaths.get(takenPaths.size() - 1);
+        return lastPath.getTo();
+    }
+
+
+    private AdventOfCodeDay18 followPath(VaultPath path) {
+        AdventOfCodeDay18 newAoc18 = new AdventOfCodeDay18(this);
+        newAoc18.takenPaths.add(path);
         return newAoc18;
     }
 
 
-    public boolean collectedAllKeys() {
-        return collectedKeys.size() == neededKeys;
+    public Stream<VaultPath> paths() {
+        return Stream.concat(Stream.of(entrance), keys.stream())
+                .map(vaultTunnel -> new VaultPath(vaultTunnel, vaultTunnel, 0, Collections.emptySet()))
+                .flatMap(vaultPath -> {
+                    Set<VaultTunnel> visitedTunnels = new HashSet<>();
+                    visitedTunnels.add(vaultPath.getTo());
+                    return vaultPaths(vaultPath, visitedTunnels);
+                })
+                .sorted(Comparator.comparingInt(VaultPath::getDistance));
     }
 
-
-    public Stream<Pair<VaultTunnel, Integer>> reachableTunnels() {
-        Pair<VaultTunnel, Integer> startPositionWithDistance = Pair.create(this.position, 0);
-        Set<VaultTunnel> visitedTunnels = new HashSet<>();
-        visitedTunnels.add(this.position);
-        return reachableTunnels(startPositionWithDistance, visitedTunnels);
-    }
-
-    public Stream<Pair<VaultTunnel, Integer>> reachableTunnels(Pair<VaultTunnel, Integer> positionWithDistance,
-            Set<VaultTunnel> visitedTunnels) {
-        VaultTunnel currentPosition = positionWithDistance.getFirst();
-        int nextStepDistance = positionWithDistance.getSecond() + 1;
-        if (isCollectableKey(currentPosition)) {
-            return Stream.of(positionWithDistance);
-        } else if (currentPosition.isDoor() && !isOpenDoor(currentPosition)) {
-            return Stream.empty();
+    public Stream<VaultPath> vaultPaths(VaultPath currentPath, Set<VaultTunnel> visitedTunnels) {
+        VaultTunnel from = currentPath.getFrom();
+        VaultTunnel to = currentPath.getTo();
+        if (to.isDoor()) {
+            currentPath.getNeededKeys().add(to.getKey());
         }
+        int newDistance = currentPath.getDistance() + 1;
 
-        return Arrays.stream(Direction.values())
-                .map(direction -> tunnelInDirection(currentPosition, direction))
+        List<VaultPath> nextPaths = Arrays.stream(Direction.values())
+                .map(direction -> tunnelInDirection(to, direction))
                 .filter(Predicate.not(VaultTunnel::isWall))
-                .filter(visitedTunnels::add)
-                .map(newPosition -> Pair.create(newPosition, nextStepDistance))
-                .flatMap(newPositionWithDistance -> reachableTunnels(newPositionWithDistance, visitedTunnels))
-                .sorted(Comparator.comparingInt(Pair::getSecond));
+                .filter(Predicate.not(visitedTunnels::contains))
+                .map(newPosition -> new VaultPath(from, newPosition, newDistance,
+                        new HashSet<>(currentPath.getNeededKeys())))
+                .collect(Collectors.toList());
+        return nextPaths.stream().flatMap(newPath -> {
+            Set<VaultTunnel> newVisitedTunnels = new HashSet<>(visitedTunnels);
+            newVisitedTunnels.add(newPath.getTo());
+            if (to.isKey() && !from.equals(to)) {
+                return Stream.concat(Stream.of(currentPath), vaultPaths(newPath, newVisitedTunnels));
+            } else {
+                return vaultPaths(newPath, newVisitedTunnels);
+            }
+        });
     }
 
 
@@ -154,42 +173,22 @@ public class AdventOfCodeDay18 implements Comparable<AdventOfCodeDay18> {
     }
 
 
-    private boolean isCollectedKey(VaultTunnel tunnelWithKey) {
-        return collectedKeys.contains(tunnelWithKey);
+    private Stream<String> collectedKeys() {
+        return takenPaths.stream().map(VaultPath::collectedKey);
     }
 
-    private boolean isCollectableKey(VaultTunnel tunnelWithKey) {
-        return tunnelWithKey.isKey() && !isCollectedKey(tunnelWithKey);
+    private boolean collectedAllKeys() {
+        return takenPaths.size() == keys.size();
     }
 
 
-    private boolean isOpenDoor(VaultTunnel tunnelWithDoor) {
-        return hasCollectedKeyForDoor(tunnelWithDoor);
-    }
-
-    private boolean hasCollectedKeyForDoor(VaultTunnel tunnelWithDoor) {
-        return collectedKeys.stream().map(VaultTunnel::getKey).anyMatch(tunnelWithDoor::canUnlockDoorWith);
+    public int getSteps() {
+        return takenPaths.stream().mapToInt(VaultPath::getDistance).sum();
     }
 
 
     public VaultTunnel tunnelAt(int x, int y) {
         return tunnelSystem[y][x];
-    }
-
-
-    public int getSteps() {
-        return steps;
-    }
-
-
-    public Set<VaultTunnel> getCollectedKeys() {
-        return collectedKeys;
-    }
-
-
-    @Override
-    public int compareTo(AdventOfCodeDay18 other) {
-        return Integer.compare(this.getSteps(), other.getSteps());
     }
 
 

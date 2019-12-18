@@ -44,6 +44,11 @@ public class VaultTunnel {
     }
 
 
+    public int compareTo(VaultTunnel other) {
+        return Character.compare(this.getKey().charAt(0), other.getKey().charAt(0));
+    }
+
+
     public String getSign() {
         switch (type) {
         case EMPTY:
