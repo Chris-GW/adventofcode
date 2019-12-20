@@ -33,11 +33,7 @@ public class RepairDroid {
             Direction nextDirection = directionIterator.next();
             RepairDroidStatusCode droidStatusCode = move(nextDirection);
             if (REACHED_LOCATION.equals(droidStatusCode)) {
-                if (oxygenSystemLocation != null) {
-                    return;
-                }
                 oxygenSystemLocation = position;
-                escapeMazeUsingRightHandRule();
                 return;
             } else if (MOVED.equals(droidStatusCode)) {
                 escapeMazeUsingRightHandRule();
@@ -65,9 +61,8 @@ public class RepairDroid {
             double y = currentPosition.getY() + direction.getDy();
             Vector2D nextPosition = new Vector2D(x, y);
             if (isEmptySpaceAt(nextPosition) && !visitedNodes.contains(nextPosition)) {
-                minDistance = Integer.min(
-                        distanceShortestPathBreadthFirstSearch(nextPosition, visitedNodes, minDistance, distance + 1),
-                        minDistance);
+                minDistance = distanceShortestPathBreadthFirstSearch(nextPosition, visitedNodes, minDistance,
+                        distance + 1);
             }
         }
         visitedNodes.remove(currentPosition);
@@ -82,18 +77,24 @@ public class RepairDroid {
         if (HIT_WALL.equals(statusCode)) {
             putWallIn(direction);
             return statusCode;
-        } else if (MOVED.equals(statusCode)) {
+        } else if (MOVED.equals(statusCode) || REACHED_LOCATION.equals(statusCode)) {
             double x = position.getX() + direction.getDx();
             double y = position.getY() + direction.getDy();
             this.position = new Vector2D(x, y);
             this.direction = direction;
             putSpace();
             return statusCode;
-        } else if (REACHED_LOCATION.equals(statusCode)) {
-            return statusCode;
         } else {
             throw new IllegalArgumentException("Unknown statuscode from repair droid: " + statusCode);
         }
+    }
+
+    private void shiftPositionTo(Direction direction) {
+        double x = position.getX() + direction.getDx();
+        double y = position.getY() + direction.getDy();
+        this.position = new Vector2D(x, y);
+        this.direction = direction;
+        putSpace();
     }
 
     private int moveCommandCode(Direction direction) {

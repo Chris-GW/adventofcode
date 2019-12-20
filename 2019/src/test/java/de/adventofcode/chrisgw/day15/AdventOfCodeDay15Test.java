@@ -11,7 +11,7 @@ public class AdventOfCodeDay15Test {
     @Test
     public void myPuzzleInput_part01_shortestDistanceToOxygenSystem() {
         String repairDroidProgramStr = TestUtils.readSingleLineOfClassPathResource("/puzzleInputDay15.txt");
-        int expectedDistance = 154; // low
+        int expectedDistance = 238;
 
         AdventOfCodeDay15 aoc15 = new AdventOfCodeDay15(repairDroidProgramStr);
         int distance = aoc15.shortestDistanceToOxygenSystem();
