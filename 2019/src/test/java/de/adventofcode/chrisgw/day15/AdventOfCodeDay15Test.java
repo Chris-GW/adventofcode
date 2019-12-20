@@ -9,12 +9,14 @@ import static org.junit.Assert.*;
 public class AdventOfCodeDay15Test {
 
     @Test
-    public void myPuzzleInput_part01_locate() {
+    public void myPuzzleInput_part01_shortestDistanceToOxygenSystem() {
         String repairDroidProgramStr = TestUtils.readSingleLineOfClassPathResource("/puzzleInputDay15.txt");
+        int expectedDistance = 154; // low
+
         AdventOfCodeDay15 aoc15 = new AdventOfCodeDay15(repairDroidProgramStr);
-        aoc15.locatedOxygenSystem();
+        int distance = aoc15.shortestDistanceToOxygenSystem();
         System.out.println(aoc15);
-        assertNotNull(aoc15);
+        assertEquals("shortestDistanceToOxygenSystem", expectedDistance, distance);
     }
 
 }

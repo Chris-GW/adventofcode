@@ -1,13 +1,6 @@
 package de.adventofcode.chrisgw.day15;
 
-import de.adventofcode.chrisgw.day03.Direction;
 import de.adventofcode.chrisgw.intcode.IntCodeProgram;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -25,20 +18,9 @@ public class AdventOfCodeDay15 {
     }
 
 
-    public long locatedOxygenSystem() {
-        List<Direction> someDirections = Stream.generate(Direction::values)
-                .flatMap(Arrays::stream)
-                .unordered()
-                .limit(50000000)
-                .collect(Collectors.toList());
-        Collections.shuffle(someDirections);
-        long foundStatus = someDirections.stream()
-                .mapToLong(repairDroid::move)
-                .dropWhile(value -> value != RepairDroid.REACHED_LOCATION_STATUS_CODE)
-                .findFirst()
-                .orElse(0);
-
-        return foundStatus;
+    public int shortestDistanceToOxygenSystem() {
+        repairDroid.escapeMazeUsingRightHandRule();
+        return repairDroid.shortestDistanceToOxygenSystem();
     }
 
 

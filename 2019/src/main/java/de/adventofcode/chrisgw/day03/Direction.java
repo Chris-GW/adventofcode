@@ -46,7 +46,7 @@ public enum Direction {
         return rotateOpposite().rotateRight();
     }
 
-    private Direction rotateOpposite() {
+    public Direction rotateOpposite() {
         return rotateRight().rotateRight();
     }
 
