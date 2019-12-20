@@ -19,8 +19,11 @@ public class AdventOfCodeDay15 {
 
 
     public int shortestDistanceToOxygenSystem() {
-        repairDroid.escapeMazeUsingRightHandRule();
         return repairDroid.shortestDistanceToOxygenSystem();
+    }
+
+    public int neededTimeForOxygenToSpread() {
+        return repairDroid.neededTimeForOxygenToSpread();
     }
 
 

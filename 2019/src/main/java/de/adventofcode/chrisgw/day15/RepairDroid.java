@@ -24,7 +24,7 @@ public class RepairDroid {
     private Map<Vector2D, OxygenSystemMapTile> map = new HashMap<>();
 
 
-    public void escapeMazeUsingRightHandRule() {
+    public void mappingMazeUsingRightHandRule() {
         Iterator<Direction> directionIterator = Stream.iterate(direction.rotateRight(), Direction::rotateLeft)
                 .limit(4)
                 .iterator();
@@ -33,10 +33,16 @@ public class RepairDroid {
             Direction nextDirection = directionIterator.next();
             RepairDroidStatusCode droidStatusCode = move(nextDirection);
             if (REACHED_LOCATION.equals(droidStatusCode)) {
+                if (oxygenSystemLocation != null) {
+                    // until we reached oxygenSystemLocation again
+                    return;
+                }
+                // run along maze yet again so we fully cover the whole maze
+                mappingMazeUsingRightHandRule();
                 oxygenSystemLocation = position;
                 return;
             } else if (MOVED.equals(droidStatusCode)) {
-                escapeMazeUsingRightHandRule();
+                mappingMazeUsingRightHandRule();
                 return;
             }
         }
@@ -44,6 +50,9 @@ public class RepairDroid {
 
 
     public int shortestDistanceToOxygenSystem() {
+        if (oxygenSystemLocation == null) {
+            mappingMazeUsingRightHandRule();
+        }
         Vector2D startPosition = Vector2D.ZERO;
         Set<Vector2D> visitedNodes = new HashSet<>();
         return distanceShortestPathBreadthFirstSearch(startPosition, visitedNodes, Integer.MAX_VALUE, 0);
@@ -70,7 +79,24 @@ public class RepairDroid {
     }
 
 
-    public RepairDroidStatusCode move(Direction direction) {
+    public int neededTimeForOxygenToSpread() {
+        if (oxygenSystemLocation == null) {
+            mappingMazeUsingRightHandRule();
+        }
+
+        int emptyTiles = (int) map.values().stream().filter(EMPTY::equals).count();
+        Set<Vector2D> coveredTiles = new HashSet<>(emptyTiles);
+        Set<Vector2D> outerVectors = new HashSet<>(emptyTiles);
+        outerVectors.add(oxygenSystemLocation);
+        int neededStepts = 0;
+        while (coveredTiles.size() < emptyTiles) {
+            neededStepts++;
+        }
+        return neededStepts;
+    }
+
+
+    private RepairDroidStatusCode move(Direction direction) {
         droidProgram.addInput(moveCommandCode(direction));
         droidProgram.run();
         RepairDroidStatusCode statusCode = readDroidStatusCode();
@@ -89,13 +115,6 @@ public class RepairDroid {
         }
     }
 
-    private void shiftPositionTo(Direction direction) {
-        double x = position.getX() + direction.getDx();
-        double y = position.getY() + direction.getDy();
-        this.position = new Vector2D(x, y);
-        this.direction = direction;
-        putSpace();
-    }
 
     private int moveCommandCode(Direction direction) {
         switch (direction) {
@@ -182,6 +201,5 @@ public class RepairDroid {
             throw new IllegalStateException("Unexpected value: " + mapTile);
         }
     }
-
 
 }
