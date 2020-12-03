@@ -10,7 +10,6 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" />
         </processorPath>
-        <module name="advent-of-code-2019" />
       </profile>
       <profile name="Annotation profile for advent-of-code-2020" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -19,7 +18,7 @@
         <processorPath useClasspath="false">
           <entry name="$USER_HOME$/.m2/repository/org/projectlombok/lombok/1.18.16/lombok-1.18.16.jar" />
         </processorPath>
-        <module name="aoc2020" />
+        <module name="advent-of-code-2020" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -27,7 +26,7 @@
       <module name="Advent-of-Code-2017" target="1.8" />
       <module name="Advent-of-Code-2018" target="1.8" />
       <module name="advent-of-code-2019" target="13" />
-      <module name="aoc2020" target="13" />
+      <module name="advent-of-code-2020" target="13" />
     </bytecodeTargetLevel>
   </component>
 </project>
