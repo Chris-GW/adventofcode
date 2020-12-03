@@ -54,7 +54,7 @@ public class AdventOfCodeDay03Test {
                 new TobogganSlope(7, 1), //
                 new TobogganSlope(1, 2));
         long treesAlongSlopes = AdventOfCodeDay03.parseTreeMap(treeMapExample).countTreesAlongSlopes(tobogganSlopes);
-        int expectedTreesAlongSlopes = 2 * 7 * 3 * 4 * 2;
+        long expectedTreesAlongSlopes = 2 * 7 * 3 * 4 * 2;
         assertEquals("expectedTreesAlongSlopes", 336, expectedTreesAlongSlopes);
         assertEquals("treesAlongSlopes", expectedTreesAlongSlopes, treesAlongSlopes);
     }
@@ -71,7 +71,7 @@ public class AdventOfCodeDay03Test {
 
         List<String> treeMapExample = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay03.txt");
         long treesAlongSlopes = AdventOfCodeDay03.parseTreeMap(treeMapExample).countTreesAlongSlopes(tobogganSlopes);
-        int expectedTreesAlongSlopes = 3154761400;
+        long expectedTreesAlongSlopes = 3154761400L;
         assertEquals("treesAlongSlopes", expectedTreesAlongSlopes, treesAlongSlopes);
     }
 
