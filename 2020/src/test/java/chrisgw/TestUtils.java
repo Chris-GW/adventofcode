@@ -1,5 +1,6 @@
 package chrisgw;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -31,6 +32,11 @@ public class TestUtils {
     public static Path getResourcePath(String classpathResource) throws URISyntaxException {
         URL classpathResourceURL = TestUtils.class.getResource(classpathResource);
         return Paths.get(classpathResourceURL.toURI());
+    }
+
+
+    public static InputStream getResourceInputStream(String classpathResource) {
+        return TestUtils.class.getResourceAsStream(classpathResource);
     }
 
 
