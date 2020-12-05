@@ -17,7 +17,14 @@ public class AdventOfCodeDay04 {
     }
 
 
-    public static long countValidPassports(Readable passportBatchInputStream) {
+    public static long countPassportsWithAllNeededFields(Readable passportBatchInputStream) {
+        List<Passport> passports = parsePassportBatch(passportBatchInputStream);
+        return passports.stream().
+                filter(Passport::hasAllNeededFields).
+                count();
+    }
+
+    private static List<Passport> parsePassportBatch(Readable passportBatchInputStream) {
         List<Passport> passports = new ArrayList<>();
 
         Passport currentPassport = new Passport();
@@ -33,10 +40,7 @@ public class AdventOfCodeDay04 {
             }
             passports.add(currentPassport);
         }
-
-        return passports.stream().
-                filter(Passport::isValid).
-                count();
+        return passports;
     }
 
     private static Map<PassportField, String> parseAllPassportFieldsWithValue(String currentLine) {
@@ -48,6 +52,16 @@ public class AdventOfCodeDay04 {
             passportFieldValueMap.put(passportField, value);
         }
         return passportFieldValueMap;
+    }
+
+
+    // part 02
+
+    public static long countValidPassports(Readable passportBatchInputStream) {
+        List<Passport> passports = parsePassportBatch(passportBatchInputStream);
+        return passports.stream().
+                filter(Passport::isValid).
+                count();
     }
 
 }
