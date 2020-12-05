@@ -29,4 +29,13 @@ public class AdventOfCodeDay05Test {
         assertEquals("id", 911, maxBoardingPassId.getId());
     }
 
+
+    // part 02
+    @Test
+    public void findFreeSeat_myPuzzleInput() {
+        List<String> scannedBoardingPasses = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay05.txt");
+        BoardingPass freeSeat = AdventOfCodeDay05.findFreeSeat(scannedBoardingPasses);
+        assertEquals("id", 629, freeSeat.getId());
+    }
+
 }

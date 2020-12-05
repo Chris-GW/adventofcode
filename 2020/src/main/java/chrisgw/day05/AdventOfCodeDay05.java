@@ -2,6 +2,10 @@ package chrisgw.day05;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 
 /**
@@ -14,9 +18,28 @@ public class AdventOfCodeDay05 {
 
 
     public static BoardingPass findMaxBoardingPassId(List<String> scannedBoardingPasses) {
-        return scannedBoardingPasses.stream()
+        return scannedBoardingPasses.stream() //
+                .map(BoardingPass::new) //
+                .max(Comparator.naturalOrder()) //
+                .orElse(null);
+    }
+
+
+    // part 02
+
+    public static BoardingPass findFreeSeat(List<String> scannedBoardingPasses) {
+        if (scannedBoardingPasses.isEmpty()) {
+            return null;
+        }
+        SortedSet<BoardingPass> sortedBoardingPasses = scannedBoardingPasses.stream()
                 .map(BoardingPass::new)
-                .max(Comparator.comparing(BoardingPass::getId))
+                .collect(TreeSet::new, TreeSet::add, TreeSet::addAll);
+        BoardingPass firstBoardingPass = sortedBoardingPasses.first();
+        BoardingPass lastBoardingPass = sortedBoardingPasses.last();
+        return IntStream.range(firstBoardingPass.getId(), lastBoardingPass.getId())
+                .mapToObj(BoardingPass::new)
+                .filter(Predicate.not(sortedBoardingPasses::contains))
+                .findAny()
                 .orElse(null);
     }
 

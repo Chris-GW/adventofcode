@@ -6,19 +6,22 @@ import java.math.BigInteger;
 
 
 @Data
-public class BoardingPass {
+public class BoardingPass implements Comparable<BoardingPass> {
 
     public static final int SEAT_PARTITIONING_ROW_POSITIONS = 7;
 
-    private final String seatPartitioning;
     private final int row;
     private final int column;
 
 
-    public BoardingPass(String seatParitioning) {
-        this.seatPartitioning = seatParitioning;
-        this.row = binarySpacePartitioning(seatParitioning.substring(0, SEAT_PARTITIONING_ROW_POSITIONS), 'F', 'B');
-        this.column = binarySpacePartitioning(seatParitioning.substring(SEAT_PARTITIONING_ROW_POSITIONS), 'L', 'R');
+    public BoardingPass(int seatId) {
+        column = seatId % 8;
+        row = seatId / 8;
+    }
+
+    public BoardingPass(String seatPartitioning) {
+        this.row = binarySpacePartitioning(seatPartitioning.substring(0, SEAT_PARTITIONING_ROW_POSITIONS), 'F', 'B');
+        this.column = binarySpacePartitioning(seatPartitioning.substring(SEAT_PARTITIONING_ROW_POSITIONS), 'L', 'R');
     }
 
     public static int binarySpacePartitioning(String partitioning, char lowerCode, char upperCode) {
@@ -44,5 +47,10 @@ public class BoardingPass {
         return row * 8 + column;
     }
 
+
+    @Override
+    public int compareTo(BoardingPass other) {
+        return Integer.compare(this.getId(), other.getId());
+    }
 
 }
