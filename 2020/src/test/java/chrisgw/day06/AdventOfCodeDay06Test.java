@@ -59,4 +59,5 @@ public class AdventOfCodeDay06Test {
         long affirmedQuestions = aoc06.countEveryoneAffirmedQuestions();
         assertEquals("affirmedQuestions", 3585, affirmedQuestions);
     }
+
 }
