@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElse;
 
 
 /**
@@ -37,7 +36,7 @@ public class AdventOfCodeDay06 {
                     currentPersonGroup.addPerson(person);
                 }
             }
-            if(!currentPersonGroup.isEmpty()) {
+            if (!currentPersonGroup.isEmpty()) {
                 personGroups.add(currentPersonGroup);
             }
             return new AdventOfCodeDay06(personGroups);
@@ -56,6 +55,13 @@ public class AdventOfCodeDay06 {
 
     public long countPersonGroupAffirmedQuestions() {
         return personGroups.stream().mapToLong(PersonGroup::affirmedQuestions).sum();
+    }
+
+
+    // part 02
+
+    public long countEveryoneAffirmedQuestions() {
+        return personGroups.stream().mapToLong(PersonGroup::everyoneAffirmedQuestionCount).sum();
     }
 
 }
