@@ -44,7 +44,7 @@ public class AdventOfCodeDay07Test {
     @Test
     public void countContainedBagsFor_example() {
         AdventOfCodeDay07 aoc07 = AdventOfCodeDay07.parseBagColorCodeRules(ruleLines);
-        long bagCount = aoc07.countContainedBagsFor(SHINY_GOLD);
+        long bagCount = aoc07.countIndividualBagsInside(SHINY_GOLD);
         int expected = 1 + (1 * 7) + 2 + (2 * 11);
         assertEquals("expectedBagCount", 32, expected);
         assertEquals("countContainedBagsFor", expected, bagCount);
@@ -61,7 +61,7 @@ public class AdventOfCodeDay07Test {
                 "dark blue bags contain 2 dark violet bags.", //
                 "dark violet bags contain no other bags.");
         AdventOfCodeDay07 aoc07 = AdventOfCodeDay07.parseBagColorCodeRules(ruleLines);
-        long bagCount = aoc07.countContainedBagsFor(SHINY_GOLD);
+        long bagCount = aoc07.countIndividualBagsInside(SHINY_GOLD);
         assertEquals("countContainedBagsFor", 126, bagCount);
     }
 
@@ -69,8 +69,8 @@ public class AdventOfCodeDay07Test {
     public void countContainedBagsFor_myPuzzleInput() {
         List<String> ruleLines = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay07.txt");
         AdventOfCodeDay07 aoc07 = AdventOfCodeDay07.parseBagColorCodeRules(ruleLines);
-        long bagCount = aoc07.countContainedBagsFor(SHINY_GOLD);
-        assertEquals("countContainedBagsFor", 1470, bagCount);
+        long bagCount = aoc07.countIndividualBagsInside(SHINY_GOLD);
+        assertEquals("countContainedBagsFor", 1469, bagCount);
     }
 
 }

@@ -57,12 +57,16 @@ public class AdventOfCodeDay07 {
 
     // part 02
 
-    public int countContainedBagsFor(Bag bag) {
+    public int countIndividualBagsInside(Bag bag) {
+        return countIndividualBagsFor(bag) - 1;
+    }
+
+    private int countIndividualBagsFor(Bag bag) {
         BagColorCodeRule rule = rules.get(bag);
         int bagSum = 1;
         for (BagQuantity containedBag : rule.getContainedBags()) {
             int quantity = containedBag.getQuantity();
-            int withinThat = countContainedBagsFor(containedBag.getBag());
+            int withinThat = countIndividualBagsFor(containedBag.getBag());
             bagSum += quantity * withinThat;
         }
         return bagSum;
