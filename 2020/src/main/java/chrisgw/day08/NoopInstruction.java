@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class NoopInstruction implements HandHeldBootInstruction {
 
-    private final int argumentValue;
+    private final int argument;
 
 
     @Override

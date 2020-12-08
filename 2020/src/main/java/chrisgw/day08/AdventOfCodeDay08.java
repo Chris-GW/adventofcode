@@ -1,11 +1,10 @@
 package chrisgw.day08;
 
-import chrisgw.day07.AdventOfCodeDay07;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -51,6 +50,34 @@ public class AdventOfCodeDay08 {
 
     public int findBootProgramInfiniteLoop() {
         return handHeldGameConsole.runBootProgram();
+    }
+
+
+    // part 02
+
+    public int repairBootProgram() {
+        List<HandHeldBootInstruction> bootProgram = handHeldGameConsole.getBootProgram();
+        for (int i = 0; i < bootProgram.size(); i++) {
+            HandHeldBootInstruction instruction = bootProgram.get(i);
+            HandHeldBootInstruction correctedInstruction;
+            int argument = instruction.getArgument();
+            if (instruction instanceof JumpInstruction) {
+                correctedInstruction = new NoopInstruction(argument);
+            } else if (instruction instanceof NoopInstruction) {
+                correctedInstruction = new JumpInstruction(argument);
+            } else {
+                continue;
+            }
+
+            bootProgram.set(i, correctedInstruction);
+            handHeldGameConsole.setBootProgram(bootProgram);
+            int accumulator = handHeldGameConsole.runBootProgram();
+            if (handHeldGameConsole.isBootProgramTerminated()) {
+                return accumulator;
+            }
+            bootProgram.set(i, instruction);
+        }
+        throw new IllegalStateException("could not fix bootProgram: " + bootProgram);
     }
 
 

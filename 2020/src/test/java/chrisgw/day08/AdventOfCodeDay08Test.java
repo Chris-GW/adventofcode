@@ -38,4 +38,21 @@ public class AdventOfCodeDay08Test {
         assertEquals("accumulator", 2025, accumulator);
     }
 
+
+    // part 02
+
+    @Test
+    public void repairBootProgram_example() {
+        AdventOfCodeDay08 aoc08 = AdventOfCodeDay08.parseHandHeldGameConsoleBootProgram(exampleBootProgram);
+        int accumulator = aoc08.repairBootProgram();
+        assertEquals("accumulator", 8, accumulator);
+    }
+
+    @Test
+    public void repairBootProgram_myPuzzleInput() {
+        List<String> bootProgramLines = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay08.txt");
+        AdventOfCodeDay08 aoc08 = AdventOfCodeDay08.parseHandHeldGameConsoleBootProgram(bootProgramLines);
+        int accumulator = aoc08.repairBootProgram();
+        assertEquals("accumulator", 2001, accumulator);
+    }
 }

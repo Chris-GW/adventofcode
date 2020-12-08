@@ -6,11 +6,11 @@ import lombok.Data;
 @Data
 public class AccumulatorInstruction implements HandHeldBootInstruction {
 
-    private final int amount;
+    private final int argument;
 
     @Override
     public void execute(HandHeldGameConsole handHeldGameConsole) {
-        handHeldGameConsole.addToAccumulator(amount);
+        handHeldGameConsole.addToAccumulator(argument);
         handHeldGameConsole.incrementInstructionPointer();
     }
 

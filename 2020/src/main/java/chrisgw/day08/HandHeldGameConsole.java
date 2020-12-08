@@ -1,5 +1,6 @@
 package chrisgw.day08;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,7 +8,7 @@ import java.util.Set;
 
 public class HandHeldGameConsole {
 
-    private final List<HandHeldBootInstruction> bootProgram;
+    private List<HandHeldBootInstruction> bootProgram;
     private int accumulator = 0;
     private int instructionPointer = 0;
 
@@ -19,7 +20,7 @@ public class HandHeldGameConsole {
 
     public int runBootProgram() {
         Set<Integer> ranInstruction = new HashSet<>(bootProgram.size());
-        while (instructionPointer < bootProgram.size()) {
+        while (!isBootProgramTerminated()) {
             boolean isNewInstructionIndex = ranInstruction.add(instructionPointer);
             if (isNewInstructionIndex) {
                 HandHeldBootInstruction nextInstruction = bootProgram.get(instructionPointer);
@@ -30,6 +31,16 @@ public class HandHeldGameConsole {
             }
         }
         return accumulator;
+    }
+
+
+    public boolean isBootProgramTerminated() {
+        return instructionPointer >= bootProgram.size();
+    }
+
+    public void reset() {
+        instructionPointer = 0;
+        accumulator = 0;
     }
 
 
@@ -44,6 +55,16 @@ public class HandHeldGameConsole {
 
     public void incrementInstructionPointer() {
         jumpRelative(+1);
+    }
+
+
+    public List<HandHeldBootInstruction> getBootProgram() {
+        return new ArrayList<>(bootProgram);
+    }
+
+    public void setBootProgram(List<HandHeldBootInstruction> bootProgram) {
+        this.bootProgram = bootProgram;
+        reset();
     }
 
 }
