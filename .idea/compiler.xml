@@ -3,15 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for advent-of-code-2019" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" />
-        </processorPath>
-      </profile>
-      <profile name="Annotation profile for advent-of-code-2020" enabled="true">
+      <profile name="Annotation profile for Advent of Code 2020" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -19,6 +11,15 @@
           <entry name="$USER_HOME$/.m2/repository/org/projectlombok/lombok/1.18.16/lombok-1.18.16.jar" />
         </processorPath>
         <module name="advent-of-code-2020" />
+      </profile>
+      <profile name="Annotation profile for Advent of Code 2019" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.m2/repository/org/projectlombok/lombok/1.18.10/lombok-1.18.10.jar" />
+        </processorPath>
+        <module name="advent-of-code-2019" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -8,14 +8,14 @@ import java.util.regex.Pattern;
 
 
 public enum PassportField {
-    Birth_Year("Birth Year", "byr", numberBetweenRange(1920, 2002)), //
-    Issue_Year("Issue Year", "iyr", numberBetweenRange(2010, 2020)), //
-    Expiration_Year("Expiration Year", "eyr", numberBetweenRange(2020, 2030)), //
-    Height("Height", "hgt", heightValidator()), //
-    Hair_Color("Hair Color", "hcl", hexColorValidator()), //
-    Eye_Color("Eye Color", "ecl", eyeColorValidator()), //
-    Passport_ID("Passport ID", "pid", passportIdValidator()), //
-    Country_ID("Country ID", "cid", value -> true), //
+    PASSPORT_FIELD("Birth Year", "byr", numberBetweenRange(1920, 2002)), //
+    PASSPORT_FIELD1("Issue Year", "iyr", numberBetweenRange(2010, 2020)), //
+    PASSPORT_FIELD2("Expiration Year", "eyr", numberBetweenRange(2020, 2030)), //
+    PASSPORT_FIELD3("Height", "hgt", heightValidator()), //
+    PASSPORT_FIELD4("Hair Color", "hcl", hexColorValidator()), //
+    PASSPORT_FIELD5("Eye Color", "ecl", eyeColorValidator()), //
+    PASSPORT_FIELD6("Passport ID", "pid", passportIdValidator()), //
+    PASSPORT_FIELD7("Country ID", "cid", value -> true), //
     ;
 
 
@@ -60,11 +60,10 @@ public enum PassportField {
 
     public static Predicate<String> heightValidator() {
         return value -> {
+            String heightStr = value.substring(0, value.length() - 2);
             if (value.endsWith("cm")) {
-                String heightStr = value.substring(0, value.length() - 2);
                 return numberBetweenRange(150, 193).test(heightStr);
             } else if (value.endsWith("in")) {
-                String heightStr = value.substring(0, value.length() - 2);
                 return numberBetweenRange(59, 76).test(heightStr);
             } else {
                 return false;

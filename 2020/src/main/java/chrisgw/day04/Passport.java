@@ -24,7 +24,7 @@ public class Passport {
     }
 
     public boolean isNorthPoleCredentials() {
-        return passportFieldValueMap.size() == PassportField.values().length - 1 && isMissing(PassportField.Country_ID);
+        return passportFieldValueMap.size() == PassportField.values().length - 1 && isMissing(PassportField.PASSPORT_FIELD7);
     }
 
 
