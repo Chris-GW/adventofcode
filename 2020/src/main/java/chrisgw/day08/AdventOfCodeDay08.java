@@ -1,6 +1,7 @@
 package chrisgw.day08;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,25 +60,35 @@ public class AdventOfCodeDay08 {
         List<HandHeldBootInstruction> bootProgram = handHeldGameConsole.getBootProgram();
         for (int i = 0; i < bootProgram.size(); i++) {
             HandHeldBootInstruction instruction = bootProgram.get(i);
-            HandHeldBootInstruction correctedInstruction;
-            int argument = instruction.getArgument();
-            if (instruction instanceof JumpInstruction) {
-                correctedInstruction = new NoopInstruction(argument);
-            } else if (instruction instanceof NoopInstruction) {
-                correctedInstruction = new JumpInstruction(argument);
-            } else {
+            HandHeldBootInstruction correctedInstruction = correctCorruptedInstruction(instruction);
+            if (correctedInstruction == null) {
                 continue;
             }
 
             bootProgram.set(i, correctedInstruction);
-            handHeldGameConsole.setBootProgram(bootProgram);
-            int accumulator = handHeldGameConsole.runBootProgram();
+            int accumulator = runCorrectedBootProgram(bootProgram);
             if (handHeldGameConsole.isBootProgramTerminated()) {
                 return accumulator;
             }
             bootProgram.set(i, instruction);
         }
         throw new IllegalStateException("could not fix bootProgram: " + bootProgram);
+    }
+
+    private int runCorrectedBootProgram(List<HandHeldBootInstruction> bootProgram) {
+        handHeldGameConsole.setBootProgram(bootProgram);
+        return handHeldGameConsole.runBootProgram();
+    }
+
+    private static HandHeldBootInstruction correctCorruptedInstruction(HandHeldBootInstruction instruction) {
+        int argument = instruction.getArgument();
+        if (instruction instanceof JumpInstruction) {
+            return new NoopInstruction(argument);
+        } else if (instruction instanceof NoopInstruction) {
+            return new JumpInstruction(argument);
+        } else {
+            return null;
+        }
     }
 
 

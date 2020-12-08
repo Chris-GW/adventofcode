@@ -55,4 +55,5 @@ public class AdventOfCodeDay08Test {
         int accumulator = aoc08.repairBootProgram();
         assertEquals("accumulator", 2001, accumulator);
     }
+
 }
