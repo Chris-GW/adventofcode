@@ -4,7 +4,9 @@ import de.adventofcode.chrisgw.AdventOfCodePuzzle;
 
 import java.time.Year;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -12,44 +14,58 @@ import java.util.stream.Collectors;
  */
 public class AdventOfCodeDay10 extends AdventOfCodePuzzle {
 
-    private final SortedSet<JoltAdapter> aviableJoltAdapters;
-    private final JoltAdapter outputJoltage = new JoltAdapter(0);
+    private final NavigableSet<JoltAdapter> availableJoltAdapters;
     private final JoltAdapter deviceJoltage;
 
 
     public AdventOfCodeDay10(List<String> inputLines) {
         super(inputLines);
-        aviableJoltAdapters = inputLines.stream()
+        availableJoltAdapters = inputLines.stream()
                 .mapToInt(Integer::parseInt)
                 .mapToObj(JoltAdapter::new)
                 .collect(TreeSet::new, TreeSet::add, TreeSet::addAll);
-        int maxRatedJolts = aviableJoltAdapters.last().getRatedJolts();
+        int maxRatedJolts = availableJoltAdapters.last().getRatedJolts();
         deviceJoltage = new JoltAdapter(maxRatedJolts + 3);
+        availableJoltAdapters.add(deviceJoltage);
     }
 
 
     @Override
     public Number solveFirstPart() {
-        int joltDifference1 = 0;
-        int joltDifference3 = 0;
-        JoltAdapter currentJoltAdapter = outputJoltage;
-        for (JoltAdapter nextJoltAdapter : aviableJoltAdapters) {
-            int joltsDifference = nextJoltAdapter.joltsDifferenceTo(currentJoltAdapter);
-            if (joltsDifference == 1) {
-                joltDifference1++;
-            } else if (joltsDifference == 3) {
-                joltDifference3++;
-            }
-            currentJoltAdapter = nextJoltAdapter;
+        JoltAdapterArrangement joltAdapterArrangement = new JoltAdapterArrangement();
+        for (JoltAdapter nextJoltAdapter : availableJoltAdapters) {
+            joltAdapterArrangement = joltAdapterArrangement.append(nextJoltAdapter);
         }
-        joltDifference3++;
+        int joltDifference1 = joltAdapterArrangement.calculateJoltDifferenceSum(1);
+        int joltDifference3 = joltAdapterArrangement.calculateJoltDifferenceSum(3);
         return joltDifference1 * joltDifference3;
     }
 
 
     @Override
-    public Object solveSecondPart() {
-        return null;
+    public Number solveSecondPart() {
+        JoltAdapterArrangement startingAdapterArrangement = new JoltAdapterArrangement();
+        return buildAllPossibleJoltAdapterArrangements(startingAdapterArrangement).size();
+    }
+
+
+    public Set<JoltAdapterArrangement> buildAllPossibleJoltAdapterArrangements(
+            JoltAdapterArrangement currentAdapterArrangement) {
+        JoltAdapter lastJoltAdapter = currentAdapterArrangement.lastJoltAdapter();
+        if (lastJoltAdapter.equals(deviceJoltage)) {
+            return Set.of(currentAdapterArrangement);
+        } else {
+            return possibleNextJoltAdapters(currentAdapterArrangement).map(currentAdapterArrangement::append)
+                    .map(this::buildAllPossibleJoltAdapterArrangements)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private Stream<JoltAdapter> possibleNextJoltAdapters(JoltAdapterArrangement joltAdapterArrangement) {
+        JoltAdapter joltAdapter = joltAdapterArrangement.lastJoltAdapter();
+        NavigableSet<JoltAdapter> higherRatedJoltAdapters = availableJoltAdapters.tailSet(joltAdapter, false);
+        return higherRatedJoltAdapters.stream().takeWhile(joltAdapterArrangement::canAppend);
     }
 
 

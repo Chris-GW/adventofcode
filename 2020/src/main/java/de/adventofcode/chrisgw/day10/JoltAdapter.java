@@ -9,13 +9,13 @@ public class JoltAdapter implements Comparable<JoltAdapter> {
     private final int ratedJolts;
 
 
-    public boolean canAcceptJolts(int jolts) {
+    public boolean canAcceptInputJolts(int inputJolts) {
         int minJolts = ratedJolts - 3;
-        return minJolts <= jolts && jolts <= ratedJolts;
+        return minJolts <= inputJolts && inputJolts <= ratedJolts;
     }
 
-    public boolean canChainWith(JoltAdapter otherJoltAdapter) {
-        return canAcceptJolts(otherJoltAdapter.getRatedJolts());
+    public boolean canAppend(JoltAdapter otherJoltAdapter) {
+        return otherJoltAdapter.canAcceptInputJolts(this.getRatedJolts());
     }
 
 
@@ -27,6 +27,11 @@ public class JoltAdapter implements Comparable<JoltAdapter> {
     @Override
     public int compareTo(JoltAdapter other) {
         return Integer.compare(this.getRatedJolts(), other.getRatedJolts());
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(ratedJolts);
     }
 
 }
