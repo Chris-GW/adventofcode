@@ -69,7 +69,7 @@ public class AdventOfCodeDay10Test {
 
     @Test
     public void solveSecondPart_myPuzzleInput() {
-        long expectedSolution = 1890;
+        long expectedSolution = 49607173328384L;
         List<String> joltAdapterRartingList = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay10.txt");
         AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
         Number solution = aoc10.solveSecondPart();
