@@ -21,7 +21,7 @@ public abstract class AdventOfCodePuzzle {
     public static final int ADVENT_OF_CODE_PUZZLE_COUNT = 25;
     public static final URI ADVENT_OF_CODE_BASE_URI = URI.create("https://adventofcode.com/");
 
-    private List<String> inputLines;
+    private final List<String> inputLines;
 
 
     public abstract Object solveFirstPart();
