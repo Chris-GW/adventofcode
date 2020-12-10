@@ -48,7 +48,7 @@ public class AdventOfCodeDay10Test {
 
     @Test
     public void solveSecondPart_example() {
-        int expectedSolution = 8;
+        long expectedSolution = 8;
         List<String> joltAdapterRartingList = List.of("16", "10", "15", "5", "1", "11", "7", "19", "6", "12", "4");
         AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
         Number solution = aoc10.solveSecondPart();
@@ -57,7 +57,7 @@ public class AdventOfCodeDay10Test {
 
     @Test
     public void solveSecondPart_otherLargerExample() {
-        int expectedSolution = 19208;
+        long expectedSolution = 19208;
         List<String> joltAdapterRartingList = List.of("28", "33", "18", "42", "31", "14", "46", "20", "48", "47", "24",
                 "23", "49", "45", "19", "38", "39", "11", "1", "32", "25", "35", "8", "17", "7", "9", "4", "2", "34",
                 "10", "3");
@@ -68,14 +68,24 @@ public class AdventOfCodeDay10Test {
 
 
     @Test
-    @Ignore
     public void solveSecondPart_myPuzzleInput() {
-        int expectedSolution = 1890;
+        long expectedSolution = 1890;
         List<String> joltAdapterRartingList = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay10.txt");
         AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
         Number solution = aoc10.solveSecondPart();
         assertEquals("solveSecondPart", expectedSolution, solution);
     }
 
+
+    @Test
+    public void tribonacciTest() {
+        List<Integer> firstFewTribonacciNumbers = List.of(0, 0, 1, 1, 2, 4, 7, 13, 24, 44, 81, 149, 274, 504, 927, 1705,
+                3136, 5768, 10609, 19513, 35890, 66012);
+        for (int i = 0; i < firstFewTribonacciNumbers.size(); i++) {
+            long value = AdventOfCodeDay10.tribonacci(i);
+            long expectedValue = firstFewTribonacciNumbers.get(i);
+            assertEquals("tribonacci(" + i + ")", expectedValue, value);
+        }
+    }
 
 }
