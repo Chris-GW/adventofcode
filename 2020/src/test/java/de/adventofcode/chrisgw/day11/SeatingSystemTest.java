@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class AdventOfCodeDay11Test {
+public class SeatingSystemTest {
 
     private final List<String> exampleInitialSeatLayout = List.of( //
             "L.LL.LL.LL", //
@@ -26,7 +26,7 @@ public class AdventOfCodeDay11Test {
     public void solveFirstPart_example() {
         long expectedOccupiedSeatCount = 37;
         SeatingSystem seatingSystem = new SeatingSystem(exampleInitialSeatLayout);
-        long occupiedSeatCount = seatingSystem.solveFirstPart().longValue();
+        long occupiedSeatCount = seatingSystem.solveFirstPart();
         assertEquals("solveFirstPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 
@@ -35,7 +35,7 @@ public class AdventOfCodeDay11Test {
         long expectedOccupiedSeatCount = 2238;
         List<String> initialSeatLayout = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay11.txt");
         SeatingSystem seatingSystem = new SeatingSystem(initialSeatLayout);
-        long occupiedSeatCount = seatingSystem.solveFirstPart().longValue();
+        long occupiedSeatCount = seatingSystem.solveFirstPart();
         assertEquals("solveFirstPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 
@@ -46,7 +46,7 @@ public class AdventOfCodeDay11Test {
     public void solveSecondPart_example() {
         long expectedOccupiedSeatCount = 26;
         SeatingSystem seatingSystem = new SeatingSystem(exampleInitialSeatLayout);
-        long occupiedSeatCount = seatingSystem.solveSecondPart().longValue();
+        long occupiedSeatCount = seatingSystem.solveSecondPart();
         assertEquals("solveSecondPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 
@@ -55,7 +55,7 @@ public class AdventOfCodeDay11Test {
         long expectedOccupiedSeatCount = 2013;
         List<String> initialSeatLayout = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay11.txt");
         SeatingSystem seatingSystem = new SeatingSystem(initialSeatLayout);
-        long occupiedSeatCount = seatingSystem.solveSecondPart().longValue();
+        long occupiedSeatCount = seatingSystem.solveSecondPart();
         assertEquals("solveSecondPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 

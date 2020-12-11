@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +25,6 @@ public class SeatingSystem extends AdventOfCodePuzzle {
         positions = parseSeatLayout(inputLines);
     }
 
-
     private SeatPosition[][] parseSeatLayout(List<String> inputLines) {
         SeatPosition[][] positions = new SeatPosition[inputLines.size()][];
         for (int y = 0; y < inputLines.size(); y++) {
@@ -41,7 +41,7 @@ public class SeatingSystem extends AdventOfCodePuzzle {
 
 
     @Override
-    public Number solveFirstPart() {
+    public Long solveFirstPart() {
         return countOccupiedSeatsInTheEnd(new FirstPartPeopleSeatOccupationBehaviour(this));
     }
 
@@ -87,7 +87,7 @@ public class SeatingSystem extends AdventOfCodePuzzle {
     // part 02
 
     @Override
-    public Number solveSecondPart() {
+    public Long solveSecondPart() {
         return countOccupiedSeatsInTheEnd(new SecondPartPeopleSeatOccupationBehaviour(this));
     }
 
@@ -99,11 +99,19 @@ public class SeatingSystem extends AdventOfCodePuzzle {
     }
 
     private Optional<SeatPosition> firstSeatInSight(SeatPosition startingSeatPosition, Direction direction) {
-        return Stream.iterate(startingSeatPosition, seatPosition -> {
+        return Stream.iterate(startingSeatPosition, walkToNextSeatPositionInDirection(direction))
+                .skip(1)
+                .takeWhile(this::isInsideSeatGrid)
+                .filter(SeatPosition::isSeat)
+                .findFirst();
+    }
+
+    private UnaryOperator<SeatPosition> walkToNextSeatPositionInDirection(Direction direction) {
+        return seatPosition -> {
             int x = seatPosition.getX() + direction.getDx();
             int y = seatPosition.getY() + direction.getDy();
             return at(x, y);
-        }).skip(1).takeWhile(this::isInsideSeatGrid).filter(SeatPosition::isSeat).findFirst();
+        };
     }
 
 

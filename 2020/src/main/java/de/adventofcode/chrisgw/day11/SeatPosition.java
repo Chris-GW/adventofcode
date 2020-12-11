@@ -11,7 +11,7 @@ public class SeatPosition {
 
     private final int x;
     private final int y;
-    private SeatPositionContent content = SeatPositionContent.EMPTY_SEAT;
+    private SeatPositionContent content;
 
 
     public void toggleSeatOccupancy() {
