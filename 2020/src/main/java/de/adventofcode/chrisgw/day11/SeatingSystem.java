@@ -40,22 +40,10 @@ public class SeatingSystem extends AdventOfCodePuzzle {
     }
 
 
-    public SeatPosition at(int x, int y) {
-        if (isInsideSeatGrid(x, y)) {
-            return positions[y][x];
-        } else {
-            return new SeatPosition(x, y, SeatPositionContent.FLOOR);
-        }
+    @Override
+    public Number solveFirstPart() {
+        return countOccupiedSeatsInTheEnd(new FirstPartPeopleSeatOccupationBehaviour(this));
     }
-
-    private boolean isInsideSeatGrid(SeatPosition seatPosition) {
-        return isInsideSeatGrid(seatPosition.getX(), seatPosition.getY());
-    }
-
-    private boolean isInsideSeatGrid(int x, int y) {
-        return 0 <= y && y < rowCount() && 0 <= x && x < columnCount();
-    }
-
 
     private boolean simulatePeopleArriving(PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour) {
         Set<SeatPosition> emptySeatsBecomesOccupied = seatPositions().filter(
@@ -68,23 +56,7 @@ public class SeatingSystem extends AdventOfCodePuzzle {
         return !(emptySeatsBecomesOccupied.isEmpty() && occupiedSeatsBecomesEmpty.isEmpty());
     }
 
-
-    private Stream<SeatPosition> adjacentSeats(SeatPosition seatPosition) {
-        return Arrays.stream(Direction.values())
-                .map(direction -> adjacentPosition(seatPosition, direction))
-                .filter(SeatPosition::isSeat);
-    }
-
-    private SeatPosition adjacentPosition(SeatPosition seatPosition, Direction direction) {
-        int x = seatPosition.getX() + direction.getDx();
-        int y = seatPosition.getY() + direction.getDy();
-        return at(x, y);
-    }
-
-
-    @Override
-    public Number solveFirstPart() {
-        PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour = new FirstPartPeopleSeatOccupationBehaviour();
+    private long countOccupiedSeatsInTheEnd(PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour) {
         while (true) {
             boolean evenMorePeopleAreArriving = simulatePeopleArriving(peopleSeatOccupationBehaviour);
             if (!evenMorePeopleAreArriving) {
@@ -99,32 +71,56 @@ public class SeatingSystem extends AdventOfCodePuzzle {
     }
 
 
-    @Override
-    public Number solveSecondPart() {
-        PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour = new SecondPartPeopleSeatOccupationBehaviour();
-        while (true) {
-            boolean evenMorePeopleAreArriving = simulatePeopleArriving(peopleSeatOccupationBehaviour);
-            if (!evenMorePeopleAreArriving) {
-                break;
-            }
-        }
-        return countOccupiedSeats();
+    public Stream<SeatPosition> adjacentSeats(SeatPosition seatPosition) {
+        return Arrays.stream(Direction.values())
+                .map(direction -> adjacentPosition(seatPosition, direction))
+                .filter(SeatPosition::isSeat);
+    }
+
+    private SeatPosition adjacentPosition(SeatPosition seatPosition, Direction direction) {
+        int x = seatPosition.getX() + direction.getDx();
+        int y = seatPosition.getY() + direction.getDy();
+        return at(x, y);
     }
 
 
-    private Stream<SeatPosition> firstSeatsInSight(SeatPosition seatPosition) {
+    // part 02
+
+    @Override
+    public Number solveSecondPart() {
+        return countOccupiedSeatsInTheEnd(new SecondPartPeopleSeatOccupationBehaviour(this));
+    }
+
+    public Stream<SeatPosition> firstSeatsInSight(SeatPosition seatPosition) {
         return Arrays.stream(Direction.values())
-                .map(direction -> firstSeatsInSight(seatPosition, direction))
+                .map(direction -> firstSeatInSight(seatPosition, direction))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
     }
 
-    public Optional<SeatPosition> firstSeatsInSight(SeatPosition startingSeatPosition, Direction direction) {
+    private Optional<SeatPosition> firstSeatInSight(SeatPosition startingSeatPosition, Direction direction) {
         return Stream.iterate(startingSeatPosition, seatPosition -> {
             int x = seatPosition.getX() + direction.getDx();
             int y = seatPosition.getY() + direction.getDy();
             return at(x, y);
         }).skip(1).takeWhile(this::isInsideSeatGrid).filter(SeatPosition::isSeat).findFirst();
+    }
+
+
+    public SeatPosition at(int x, int y) {
+        if (isInsideSeatGrid(x, y)) {
+            return positions[y][x];
+        } else {
+            return new SeatPosition(x, y, SeatPositionContent.FLOOR);
+        }
+    }
+
+    public boolean isInsideSeatGrid(SeatPosition seatPosition) {
+        return isInsideSeatGrid(seatPosition.getX(), seatPosition.getY());
+    }
+
+    public boolean isInsideSeatGrid(int x, int y) {
+        return 0 <= y && y < rowCount() && 0 <= x && x < columnCount();
     }
 
 
@@ -170,50 +166,6 @@ public class SeatingSystem extends AdventOfCodePuzzle {
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-
-    public class FirstPartPeopleSeatOccupationBehaviour implements PeopleSeatOccupationBehaviour {
-
-        @Override
-        public boolean wouldOccupySeat(SeatPosition seatPosition) {
-            return seatPosition.isEmptySeat() && adjacentSeats(seatPosition).allMatch(SeatPosition::isEmptySeat);
-        }
-
-
-        @Override
-        public boolean wouldFreeSeat(SeatPosition seatPosition) {
-            return seatPosition.isOccupiedSeat() && hasMoreThanToleranceAdjacentOccupiedSeats(seatPosition, 4);
-        }
-
-        private boolean hasMoreThanToleranceAdjacentOccupiedSeats(SeatPosition seatPosition,
-                int occupiedSeatTolerance) {
-            long adjecentOccupiedSeatCount = adjacentSeats(seatPosition).filter(SeatPosition::isOccupiedSeat).count();
-            return adjecentOccupiedSeatCount >= occupiedSeatTolerance;
-        }
-
-    }
-
-
-    public class SecondPartPeopleSeatOccupationBehaviour implements PeopleSeatOccupationBehaviour {
-
-        @Override
-        public boolean wouldOccupySeat(SeatPosition seatPosition) {
-            return seatPosition.isEmptySeat() && firstSeatsInSight(seatPosition).allMatch(SeatPosition::isEmptySeat);
-        }
-
-
-        @Override
-        public boolean wouldFreeSeat(SeatPosition seatPosition) {
-            return seatPosition.isOccupiedSeat() && hasMoreThanToleranceOccupiedSeatsInSight(seatPosition, 5);
-        }
-
-        private boolean hasMoreThanToleranceOccupiedSeatsInSight(SeatPosition seatPosition, int occupiedSeatTolerance) {
-            long adjecentOccupiedSeatCount = firstSeatsInSight(seatPosition).filter(SeatPosition::isOccupiedSeat)
-                    .count();
-            return adjecentOccupiedSeatCount >= occupiedSeatTolerance;
-        }
-
     }
 
 }
