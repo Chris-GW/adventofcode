@@ -24,17 +24,39 @@ public class AdventOfCodeDay11Test {
 
     @Test
     public void solveFirstPart_example() {
+        long expectedOccupiedSeatCount = 37;
         SeatingSystem seatingSystem = new SeatingSystem(exampleInitialSeatLayout);
         long occupiedSeatCount = seatingSystem.solveFirstPart().longValue();
-        assertEquals("solveFirstPart occupiedSeatCount", 37L, occupiedSeatCount);
+        assertEquals("solveFirstPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 
     @Test
     public void solveFirstPart_myPuzzleInput() {
+        long expectedOccupiedSeatCount = 2238;
         List<String> initialSeatLayout = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay11.txt");
         SeatingSystem seatingSystem = new SeatingSystem(initialSeatLayout);
         long occupiedSeatCount = seatingSystem.solveFirstPart().longValue();
-        assertEquals("solveFirstPart occupiedSeatCount", 2238L, occupiedSeatCount);
+        assertEquals("solveFirstPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
+    }
+
+
+    // part 02
+
+    @Test
+    public void solveSecondPart_example() {
+        long expectedOccupiedSeatCount = 26;
+        SeatingSystem seatingSystem = new SeatingSystem(exampleInitialSeatLayout);
+        long occupiedSeatCount = seatingSystem.solveSecondPart().longValue();
+        assertEquals("solveSecondPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
+    }
+
+    @Test
+    public void solveSecondPart_myPuzzleInput() {
+        long expectedOccupiedSeatCount = 2013;
+        List<String> initialSeatLayout = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay11.txt");
+        SeatingSystem seatingSystem = new SeatingSystem(initialSeatLayout);
+        long occupiedSeatCount = seatingSystem.solveSecondPart().longValue();
+        assertEquals("solveSecondPart occupiedSeatCount", expectedOccupiedSeatCount, occupiedSeatCount);
     }
 
 }

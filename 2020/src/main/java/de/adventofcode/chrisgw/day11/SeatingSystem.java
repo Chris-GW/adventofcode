@@ -5,11 +5,10 @@ import de.adventofcode.chrisgw.AdventOfCodePuzzle;
 import java.time.Year;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.Stream.Builder;
 
 
 /**
@@ -32,12 +31,9 @@ public class SeatingSystem extends AdventOfCodePuzzle {
             String line = inputLines.get(y);
             positions[y] = new SeatPosition[line.length()];
             for (int x = 0; x < line.length(); x++) {
-                char c = line.charAt(x);
-                if (c == 'L') {
-                    positions[y][x] = new SeatPosition(x, y);
-                } else if (c != '.') {
-                    throw new IllegalArgumentException(String.format("Unexpected seat layout at (%d,%d)=%s", x, y, c));
-                }
+                char symbol = line.charAt(x);
+                SeatPositionContent seatPositionContent = SeatPositionContent.fromSymbol(symbol);
+                positions[y][x] = new SeatPosition(x, y, seatPositionContent);
             }
         }
         return positions;
@@ -48,8 +44,12 @@ public class SeatingSystem extends AdventOfCodePuzzle {
         if (isInsideSeatGrid(x, y)) {
             return positions[y][x];
         } else {
-            return null;
+            return new SeatPosition(x, y, SeatPositionContent.FLOOR);
         }
+    }
+
+    private boolean isInsideSeatGrid(SeatPosition seatPosition) {
+        return isInsideSeatGrid(seatPosition.getX(), seatPosition.getY());
     }
 
     private boolean isInsideSeatGrid(int x, int y) {
@@ -57,66 +57,79 @@ public class SeatingSystem extends AdventOfCodePuzzle {
     }
 
 
-    public boolean simulatePeopleArriving() {
-        Set<SeatPosition> emptySeatsBecomesOccupied = emptySeatsBecomesOccupied().collect(Collectors.toSet());
-        emptySeatsBecomesOccupied.forEach(seatPosition -> seatPosition.setEmptySeat(false));
+    private boolean simulatePeopleArriving(PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour) {
+        Set<SeatPosition> emptySeatsBecomesOccupied = seatPositions().filter(
+                peopleSeatOccupationBehaviour::wouldFreeSeat).collect(Collectors.toSet());
+        emptySeatsBecomesOccupied.forEach(SeatPosition::toggleSeatOccupancy);
 
-        Set<SeatPosition> occupiedSeatsBecomesEmpty = occupiedSeatsBecomesEmpty().collect(Collectors.toSet());
-        occupiedSeatsBecomesEmpty.forEach(seatPosition -> seatPosition.setEmptySeat(true));
+        Set<SeatPosition> occupiedSeatsBecomesEmpty = seatPositions().filter(
+                peopleSeatOccupationBehaviour::wouldOccupySeat).collect(Collectors.toSet());
+        occupiedSeatsBecomesEmpty.forEach(SeatPosition::toggleSeatOccupancy);
         return !(emptySeatsBecomesOccupied.isEmpty() && occupiedSeatsBecomesEmpty.isEmpty());
     }
 
 
-    /**
-     * If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
-     *
-     * @return true if any empty seat (L) becomes occupied.
-     */
-    private Stream<SeatPosition> emptySeatsBecomesOccupied() {
-        Stream<SeatPosition> emptySeats = seatPositions().filter(SeatPosition::isEmptySeat);
-        return emptySeats.filter(this::hasNoAdjacentOccupiedSeats);
-    }
-
-    private boolean hasNoAdjacentOccupiedSeats(SeatPosition emptySeatPosition) {
-        return adjacentSeats(emptySeatPosition).allMatch(SeatPosition::isEmptySeat);
-    }
-
-
-    /**
-     * If a seat is occupied (#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
-     *
-     * @return true if any occupied seat (#) becomes empty.
-     */
-    private Stream<SeatPosition> occupiedSeatsBecomesEmpty() {
-        Stream<SeatPosition> occupiedSeats = seatPositions().filter(SeatPosition::isOccupiedSeat);
-        return occupiedSeats.filter(this::hasMoreThan4AdjacentOccupiedSeats);
-    }
-
-    private boolean hasMoreThan4AdjacentOccupiedSeats(SeatPosition seatPosition) {
-        long adjecentOccupiedSeatCount = adjacentSeats(seatPosition).filter(SeatPosition::isOccupiedSeat).count();
-        return adjecentOccupiedSeatCount >= 4;
-    }
-
-
     private Stream<SeatPosition> adjacentSeats(SeatPosition seatPosition) {
-        Builder<SeatPosition> adjacentSeats = Stream.builder();
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                if (dy == 0 && dx == 0) {
-                    continue;
-                }
-                int y = seatPosition.getY() + dy;
-                int x = seatPosition.getX() + dx;
-                SeatPosition adjacentSeat = at(x, y);
-                adjacentSeats.add(adjacentSeat);
+        return Arrays.stream(Direction.values())
+                .map(direction -> adjacentPosition(seatPosition, direction))
+                .filter(SeatPosition::isSeat);
+    }
+
+    private SeatPosition adjacentPosition(SeatPosition seatPosition, Direction direction) {
+        int x = seatPosition.getX() + direction.getDx();
+        int y = seatPosition.getY() + direction.getDy();
+        return at(x, y);
+    }
+
+
+    @Override
+    public Number solveFirstPart() {
+        PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour = new FirstPartPeopleSeatOccupationBehaviour();
+        while (true) {
+            boolean evenMorePeopleAreArriving = simulatePeopleArriving(peopleSeatOccupationBehaviour);
+            if (!evenMorePeopleAreArriving) {
+                break;
             }
         }
-        return adjacentSeats.build().filter(Objects::nonNull);
+        return countOccupiedSeats();
+    }
+
+    private long countOccupiedSeats() {
+        return seatPositions().filter(SeatPosition::isOccupiedSeat).count();
+    }
+
+
+    @Override
+    public Number solveSecondPart() {
+        PeopleSeatOccupationBehaviour peopleSeatOccupationBehaviour = new SecondPartPeopleSeatOccupationBehaviour();
+        while (true) {
+            boolean evenMorePeopleAreArriving = simulatePeopleArriving(peopleSeatOccupationBehaviour);
+            if (!evenMorePeopleAreArriving) {
+                break;
+            }
+        }
+        return countOccupiedSeats();
+    }
+
+
+    private Stream<SeatPosition> firstSeatsInSight(SeatPosition seatPosition) {
+        return Arrays.stream(Direction.values())
+                .map(direction -> firstSeatsInSight(seatPosition, direction))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    public Optional<SeatPosition> firstSeatsInSight(SeatPosition startingSeatPosition, Direction direction) {
+        return Stream.iterate(startingSeatPosition, seatPosition -> {
+            int x = seatPosition.getX() + direction.getDx();
+            int y = seatPosition.getY() + direction.getDy();
+            return at(x, y);
+        }).skip(1).takeWhile(this::isInsideSeatGrid).filter(SeatPosition::isSeat).findFirst();
     }
 
 
     public Stream<SeatPosition> seatPositions() {
-        return Arrays.stream(positions).flatMap(Arrays::stream).filter(Objects::nonNull);
+        return Arrays.stream(positions).flatMap(Arrays::stream);
     }
 
 
@@ -126,24 +139,6 @@ public class SeatingSystem extends AdventOfCodePuzzle {
 
     public int columnCount() {
         return positions[0].length;
-    }
-
-
-    @Override
-    public Number solveFirstPart() {
-        while (true) {
-            boolean evenMorePeopleAreArriving = simulatePeopleArriving();
-            if (!evenMorePeopleAreArriving) {
-                break;
-            }
-        }
-        return seatPositions().filter(SeatPosition::isOccupiedSeat).count();
-    }
-
-
-    @Override
-    public Number solveSecondPart() {
-        return null;
     }
 
 
@@ -175,6 +170,50 @@ public class SeatingSystem extends AdventOfCodePuzzle {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+
+    public class FirstPartPeopleSeatOccupationBehaviour implements PeopleSeatOccupationBehaviour {
+
+        @Override
+        public boolean wouldOccupySeat(SeatPosition seatPosition) {
+            return seatPosition.isEmptySeat() && adjacentSeats(seatPosition).allMatch(SeatPosition::isEmptySeat);
+        }
+
+
+        @Override
+        public boolean wouldFreeSeat(SeatPosition seatPosition) {
+            return seatPosition.isOccupiedSeat() && hasMoreThanToleranceAdjacentOccupiedSeats(seatPosition, 4);
+        }
+
+        private boolean hasMoreThanToleranceAdjacentOccupiedSeats(SeatPosition seatPosition,
+                int occupiedSeatTolerance) {
+            long adjecentOccupiedSeatCount = adjacentSeats(seatPosition).filter(SeatPosition::isOccupiedSeat).count();
+            return adjecentOccupiedSeatCount >= occupiedSeatTolerance;
+        }
+
+    }
+
+
+    public class SecondPartPeopleSeatOccupationBehaviour implements PeopleSeatOccupationBehaviour {
+
+        @Override
+        public boolean wouldOccupySeat(SeatPosition seatPosition) {
+            return seatPosition.isEmptySeat() && firstSeatsInSight(seatPosition).allMatch(SeatPosition::isEmptySeat);
+        }
+
+
+        @Override
+        public boolean wouldFreeSeat(SeatPosition seatPosition) {
+            return seatPosition.isOccupiedSeat() && hasMoreThanToleranceOccupiedSeatsInSight(seatPosition, 5);
+        }
+
+        private boolean hasMoreThanToleranceOccupiedSeatsInSight(SeatPosition seatPosition, int occupiedSeatTolerance) {
+            long adjecentOccupiedSeatCount = firstSeatsInSight(seatPosition).filter(SeatPosition::isOccupiedSeat)
+                    .count();
+            return adjecentOccupiedSeatCount >= occupiedSeatTolerance;
+        }
+
     }
 
 }
