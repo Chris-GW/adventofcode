@@ -18,7 +18,7 @@ public class AdventOfCodeDay10 extends AdventOfCodePuzzle {
 
 
     public AdventOfCodeDay10(List<String> inputLines) {
-        super(inputLines);
+        super(Year.of(2020), 10, inputLines);
         availableJoltAdapters = inputLines.stream()
                 .mapToInt(Integer::parseInt)
                 .mapToObj(JoltAdapter::new)
@@ -101,15 +101,5 @@ public class AdventOfCodeDay10 extends AdventOfCodePuzzle {
         }
     }
 
-
-    @Override
-    public Year getYear() {
-        return Year.of(2020);
-    }
-
-    @Override
-    public int getDay() {
-        return 10;
-    }
 
 }

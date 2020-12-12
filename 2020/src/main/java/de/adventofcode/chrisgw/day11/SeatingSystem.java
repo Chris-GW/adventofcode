@@ -21,7 +21,7 @@ public class SeatingSystem extends AdventOfCodePuzzle {
 
 
     public SeatingSystem(List<String> inputLines) {
-        super(inputLines);
+        super(Year.of(2020), 11, inputLines);
         positions = parseSeatLayout(inputLines);
     }
 
@@ -147,15 +147,24 @@ public class SeatingSystem extends AdventOfCodePuzzle {
 
 
     @Override
-    public Year getYear() {
-        return Year.of(2020);
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof SeatingSystem))
+            return false;
+        if (!super.equals(o))
+            return false;
+
+        SeatingSystem that = (SeatingSystem) o;
+        return Arrays.deepEquals(positions, that.positions);
     }
 
     @Override
-    public int getDay() {
-        return 11;
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Arrays.deepHashCode(positions);
+        return result;
     }
-
 
     @Override
     public String toString() {

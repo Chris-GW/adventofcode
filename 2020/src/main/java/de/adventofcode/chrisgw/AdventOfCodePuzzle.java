@@ -21,6 +21,8 @@ public abstract class AdventOfCodePuzzle {
     public static final int ADVENT_OF_CODE_PUZZLE_COUNT = 25;
     public static final URI ADVENT_OF_CODE_BASE_URI = URI.create("https://adventofcode.com/");
 
+    private final Year year;
+    private final int day;
     private final List<String> inputLines;
 
 
@@ -28,10 +30,6 @@ public abstract class AdventOfCodePuzzle {
 
     public abstract Object solveSecondPart();
 
-
-    public abstract Year getYear();
-
-    public abstract int getDay();
 
     public LocalDate getDate() {
         return getYear().atMonth(DECEMBER).atDay(getDay());
