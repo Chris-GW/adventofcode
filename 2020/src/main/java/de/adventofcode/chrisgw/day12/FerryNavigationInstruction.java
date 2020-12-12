@@ -2,6 +2,8 @@ package de.adventofcode.chrisgw.day12;
 
 public interface FerryNavigationInstruction {
 
-    void execute(FerryNavigationComputer navigationComputer);
+    void executeAsShipMoveInstruction(FerryNavigationComputer navigationComputer);
+
+    void executeAsWaypointInstruction(FerryNavigationComputer navigationComputer);
 
 }

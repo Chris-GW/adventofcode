@@ -13,15 +13,29 @@ public class FerryNavigationMoveInstruction implements FerryNavigationInstructio
 
 
     @Override
-    public void execute(FerryNavigationComputer navigationComputer) {
+    public void executeAsShipMoveInstruction(FerryNavigationComputer navigationComputer) {
         NavigationDirection moveDirection = navigationDirection;
         if (FORWARD.equals(moveDirection)) {
             moveDirection = navigationComputer.getDirection();
         }
-        int x = navigationComputer.getX() + (moveDirection.getDx() * value);
-        int y = navigationComputer.getY() + (moveDirection.getDy() * value);
-        navigationComputer.setX(x);
-        navigationComputer.setY(y);
+        int dx = moveDirection.getDx() * value;
+        int dy = moveDirection.getDy() * value;
+        navigationComputer.movePosition(dx, dy);
+    }
+
+
+    @Override
+    public void executeAsWaypointInstruction(FerryNavigationComputer navigationComputer) {
+        NavigationDirection moveDirection = navigationDirection;
+        if (FORWARD.equals(moveDirection)) {
+            int dx = navigationComputer.getWaypointX() * value;
+            int dy = navigationComputer.getWaypointY() * value;
+            navigationComputer.movePosition(dx, dy);
+        } else {
+            int dx = moveDirection.getDx() * value;
+            int dy = moveDirection.getDy() * value;
+            navigationComputer.moveWaypoint(dx, dy);
+        }
     }
 
 

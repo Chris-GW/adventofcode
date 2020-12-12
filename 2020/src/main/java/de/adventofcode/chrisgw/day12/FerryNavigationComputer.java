@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.adventofcode.chrisgw.day12.NavigationDirection.EAST;
+import static de.adventofcode.chrisgw.day12.NavigationDirection.NORTH;
 
 
 /**
@@ -23,6 +24,9 @@ public class FerryNavigationComputer extends AdventOfCodePuzzle {
 
     private int x = 0;
     private int y = 0;
+
+    private int waypointX = 0;
+    private int waypointY = 0;
     private NavigationDirection direction = EAST;
 
 
@@ -31,6 +35,12 @@ public class FerryNavigationComputer extends AdventOfCodePuzzle {
         navigationInstructions = inputLines.stream()
                 .map(FerryNavigationComputer::parseInstruction)
                 .collect(Collectors.toList());
+        moveWaypointIntoStartingPosition();
+    }
+
+    private void moveWaypointIntoStartingPosition() {
+        new FerryNavigationMoveInstruction(NORTH, 1).executeAsWaypointInstruction(this);
+        new FerryNavigationMoveInstruction(EAST, 10).executeAsWaypointInstruction(this);
     }
 
     public static FerryNavigationInstruction parseInstruction(String instructionStr) {
@@ -48,23 +58,20 @@ public class FerryNavigationComputer extends AdventOfCodePuzzle {
     }
 
 
-    public void executeNextInstruction() {
-        if (terminated()) {
-            throw new IllegalStateException("is alread terminated");
-        }
-        FerryNavigationInstruction instruction = navigationInstructions.get(instructionPointer++);
-        instruction.execute(this);
-    }
-
-    public boolean terminated() {
-        return instructionPointer >= navigationInstructions.size();
-    }
-
-
     @Override
     public Integer solveFirstPart() {
         while (!terminated()) {
-            executeNextInstruction();
+            FerryNavigationInstruction instruction = navigationInstructions.get(instructionPointer++);
+            instruction.executeAsShipMoveInstruction(this);
+        }
+        return distanceFromStartingPoint();
+    }
+
+    @Override
+    public Integer solveSecondPart() {
+        while (!terminated()) {
+            FerryNavigationInstruction instruction = navigationInstructions.get(instructionPointer++);
+            instruction.executeAsWaypointInstruction(this);
         }
         return distanceFromStartingPoint();
     }
@@ -74,9 +81,19 @@ public class FerryNavigationComputer extends AdventOfCodePuzzle {
     }
 
 
-    @Override
-    public Integer solveSecondPart() {
-        return 0;
+    public boolean terminated() {
+        return instructionPointer >= navigationInstructions.size();
+    }
+
+
+    public void movePosition(int dx, int dy) {
+        x += dx;
+        y += dy;
+    }
+
+    public void moveWaypoint(int dx, int dy) {
+        waypointX += dx;
+        waypointY += dy;
     }
 
 
