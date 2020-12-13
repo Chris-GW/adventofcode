@@ -7,9 +7,10 @@ import lombok.Data;
 public class Bus {
 
     private final int id;
+    private final int departureIndex;
 
 
-    public boolean isAirportDepartureTime(int timestamp) {
+    public boolean isAirportDepartureTime(long timestamp) {
         return timestamp % id == 0;
     }
 

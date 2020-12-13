@@ -4,9 +4,10 @@ import de.adventofcode.chrisgw.AdventOfCodePuzzle;
 
 import java.time.Year;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.LongStream;
 
 
 /**
@@ -23,10 +24,11 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
         earliestTime = Integer.parseInt(inputLines.get(0));
         String[] splittedBusPlan = inputLines.get(1).split(",");
         busPlan = new ArrayList<>(splittedBusPlan.length);
-        for (String busIdStr : splittedBusPlan) {
+        for (int i = 0; i < splittedBusPlan.length; i++) {
+            String busIdStr = splittedBusPlan[i];
             if (!"x".equals(busIdStr)) {
                 int busId = Integer.parseInt(busIdStr);
-                Bus bus = new Bus(busId);
+                Bus bus = new Bus(busId, i);
                 busPlan.add(bus);
             }
         }
@@ -44,7 +46,7 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
         }
     }
 
-    private Optional<Bus> findBusForDepartAt(int timestamp) {
+    private Optional<Bus> findBusForDepartAt(long timestamp) {
         return busPlan.stream().filter(bus -> bus.isAirportDepartureTime(timestamp)).findAny();
     }
 
@@ -52,8 +54,19 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
     // part 02
 
     @Override
-    public Number solveSecondPart() {
-        return 0;
+    public Long solveSecondPart() {
+        Bus greatestBus = busPlan.stream().max(Comparator.comparing(Bus::getId)).orElseThrow();
+        return LongStream.iterate(1L, i -> i + 1L)
+                .parallel()
+                .map((long i) -> (greatestBus.getId() * i) - greatestBus.getDepartureIndex())
+                .filter(this::isWhishedSubsequentBusDepartureTimestamp)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private boolean isWhishedSubsequentBusDepartureTimestamp(long timestamp) {
+        return timestamp < 0 || busPlan.stream()
+                .allMatch(bus -> bus.isAirportDepartureTime(timestamp + bus.getDepartureIndex()));
     }
 
 }
