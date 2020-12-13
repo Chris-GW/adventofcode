@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.LongStream;
 
 
 /**
@@ -55,18 +54,29 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
 
     @Override
     public Long solveSecondPart() {
-        Bus greatestBus = busPlan.stream().max(Comparator.comparing(Bus::getId)).orElseThrow();
-        return LongStream.iterate(1L, i -> i + 1L)
-                .parallel()
-                .map((long i) -> (greatestBus.getId() * i) - greatestBus.getDepartureIndex())
-                .filter(this::isWhishedSubsequentBusDepartureTimestamp)
-                .findFirst()
-                .orElseThrow();
-    }
+        long[] moduloN = busPlan.stream()
+                .sorted(Comparator.comparing(Bus::getId).reversed())
+                .mapToLong(Bus::getId)
+                .toArray();
+        long[] restA = busPlan.stream()
+                .sorted(Comparator.comparing(Bus::getId).reversed())
+                .mapToLong(Bus::getDepartureIndex)
+                .toArray();
 
-    private boolean isWhishedSubsequentBusDepartureTimestamp(long timestamp) {
-        return timestamp < 0 || busPlan.stream()
-                .allMatch(bus -> bus.isAirportDepartureTime(timestamp + bus.getDepartureIndex()));
+        long timestamp = restA[0];
+        long stepSize = moduloN[0];
+        for (int i = 1; i < moduloN.length; i++) {
+            long modulo = moduloN[i];
+            long rest = restA[i];
+
+            while (timestamp % modulo != rest) {
+                System.out.printf("%15d mod %3d -> %3d != %3d Continue%n", timestamp, modulo, timestamp % modulo, rest);
+                timestamp += stepSize;
+            }
+            stepSize *= modulo;
+            System.out.printf("%15d mod %3d -> %3d OK with new StepSize %d%n", timestamp, modulo, rest, stepSize);
+        }
+        return timestamp;
     }
 
 }
