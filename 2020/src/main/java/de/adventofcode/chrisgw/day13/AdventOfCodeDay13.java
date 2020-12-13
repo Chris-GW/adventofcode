@@ -4,7 +4,6 @@ import de.adventofcode.chrisgw.AdventOfCodePuzzle;
 
 import java.time.Year;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,14 +53,8 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
 
     @Override
     public Long solveSecondPart() {
-        long[] moduloN = busPlan.stream()
-                .sorted(Comparator.comparing(Bus::getId).reversed())
-                .mapToLong(Bus::getId)
-                .toArray();
-        long[] restA = busPlan.stream()
-                .sorted(Comparator.comparing(Bus::getId).reversed())
-                .mapToLong(Bus::getDepartureIndex)
-                .toArray();
+        long[] moduloN = busPlan.stream().mapToLong(Bus::getId).toArray();
+        long[] restA = busPlan.stream().mapToLong(Bus::getDepartureIndex).toArray();
 
         long timestamp = restA[0];
         long stepSize = moduloN[0];
@@ -69,12 +62,10 @@ public class AdventOfCodeDay13 extends AdventOfCodePuzzle {
             long modulo = moduloN[i];
             long rest = restA[i];
 
-            while (timestamp % modulo != rest) {
-                System.out.printf("%15d mod %3d -> %3d != %3d Continue%n", timestamp, modulo, timestamp % modulo, rest);
+            while ((timestamp + rest) % modulo != 0) {
                 timestamp += stepSize;
             }
             stepSize *= modulo;
-            System.out.printf("%15d mod %3d -> %3d OK with new StepSize %d%n", timestamp, modulo, rest, stepSize);
         }
         return timestamp;
     }

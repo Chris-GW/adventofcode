@@ -51,15 +51,6 @@ public class AdventOfCodeDay13Test {
     }
 
     @Test
-    public void solveSecondPart_exampleWiki() {
-        long expectedEarliestTimestamp = 39;
-        List<String> exampleBusPlanLines = List.of("123", "3,x,x,4,5");
-        AdventOfCodeDay13 aoc10 = new AdventOfCodeDay13(exampleBusPlanLines);
-        long solution = aoc10.solveSecondPart();
-        assertEquals("solveSecondPart", expectedEarliestTimestamp, solution);
-    }
-
-    @Test
     public void solveSecondPart_example2() {
         long expectedEarliestTimestamp = 3417;
         List<String> exampleBusPlanLines = List.of("123", "17,x,13,19");
@@ -106,10 +97,10 @@ public class AdventOfCodeDay13Test {
 
 
     @Test
-    @Ignore
     public void solveSecondPart_myPuzzleInput() {
         List<String> busPlanLines = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay13.txt");
-        long expectedSolution = 246;
+        long expectedSolution = 939490236001473L;
+        // 459878634995949 to low
 
         AdventOfCodeDay13 aoc10 = new AdventOfCodeDay13(busPlanLines);
         long solution = aoc10.solveSecondPart();
