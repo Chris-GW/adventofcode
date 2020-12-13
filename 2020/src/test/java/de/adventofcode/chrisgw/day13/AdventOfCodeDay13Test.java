@@ -12,44 +12,30 @@ import static org.junit.Assert.*;
 public class AdventOfCodeDay13Test {
 
 
+    private final List<String> exampleBusPlanLines = List.of("939", "7,13,x,x,59,x,31,19");
+
+
     @Test
     public void solveFirstPart_example() {
-        int expectedSolution = 7 * 5;
-        List<String> joltAdapterRartingList = List.of("16", "10", "15", "5", "1", "11", "7", "19", "6", "12", "4");
-        AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
-        Number solution = aoc10.solveFirstPart();
+        int expectedWaitTime = 944 - 939;
+        assertEquals("expectedWaitTime", 5, expectedWaitTime);
+        int expectedBusId = 59;
+        int expectedSolution = expectedBusId * expectedWaitTime;
+        assertEquals("expectedSolution", 295, expectedSolution);
+
+        AdventOfCodeDay13 aoc10 = new AdventOfCodeDay13(exampleBusPlanLines);
+        int solution = aoc10.solveFirstPart();
         assertEquals("solveFirstPart", expectedSolution, solution);
     }
 
     @Test
     public void solveFirstPart_myPuzzleInput() {
-        int expectedSolution = 1890;
-        List<String> joltAdapterRartingList = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay10.txt");
-        AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
-        Number solution = aoc10.solveFirstPart();
+        List<String> busPlanLines = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay13.txt");
+        int expectedSolution = 246;
+
+        AdventOfCodeDay13 aoc10 = new AdventOfCodeDay13(busPlanLines);
+        int solution = aoc10.solveFirstPart();
         assertEquals("solveFirstPart", expectedSolution, solution);
-    }
-
-
-    // part 02
-
-    @Test
-    public void solveSecondPart_example() {
-        long expectedSolution = 8;
-        List<String> joltAdapterRartingList = List.of("16", "10", "15", "5", "1", "11", "7", "19", "6", "12", "4");
-        AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
-        Number solution = aoc10.solveSecondPart();
-        assertEquals("solveSecondPart", expectedSolution, solution);
-    }
-
-
-    @Test
-    public void solveSecondPart_myPuzzleInput() {
-        long expectedSolution = 49607173328384L;
-        List<String> joltAdapterRartingList = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay10.txt");
-        AdventOfCodeDay10 aoc10 = new AdventOfCodeDay10(joltAdapterRartingList);
-        Number solution = aoc10.solveSecondPart();
-        assertEquals("solveSecondPart", expectedSolution, solution);
     }
 
 }
