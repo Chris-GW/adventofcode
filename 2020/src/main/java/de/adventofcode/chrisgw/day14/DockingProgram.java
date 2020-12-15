@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.LongStream;
 
 
 /**
@@ -28,20 +29,15 @@ public class DockingProgram extends AdventOfCodePuzzle {
     }
 
 
-    private void setMemoryValueAt(long memoryAdress, long value) {
-        memory.put(memoryAdress, applyBitMask(value));
-    }
-
-    private long applyBitMask(long value) {
+    private long applyBitMaskOnValue(long value) {
         StringBuilder valueBinary = toBinaryString(value);
         System.out.printf("value:  %s  (decimal %d)%n", valueBinary, value);
         System.out.printf("mask:   %s%n", bitMask);
         for (int i = 0; i < valueBinary.length(); i++) {
             char c = bitMask.charAt(i);
-            if (c == 'X') {
-                continue;
+            if (c == '0' || c == '1') {
+                valueBinary.setCharAt(i, c);
             }
-            valueBinary.setCharAt(i, c);
         }
 
         long newValue = Long.parseLong(valueBinary.toString(), 2);
@@ -62,9 +58,9 @@ public class DockingProgram extends AdventOfCodePuzzle {
             if (setMaskMatcher.matches()) {
                 this.bitMask = setMaskMatcher.group(1);
             } else if (setMemoryMatcher.matches()) {
-                long memoryAdress = Long.parseLong(setMemoryMatcher.group(1));
+                long memoryAddress = Long.parseLong(setMemoryMatcher.group(1));
                 long value = Long.parseLong(setMemoryMatcher.group(2));
-                setMemoryValueAt(memoryAdress, value);
+                memory.put(memoryAddress, applyBitMaskOnValue(value));
             } else {
                 throw new IllegalArgumentException("unknown instruction: " + inputLine);
             }
@@ -80,9 +76,61 @@ public class DockingProgram extends AdventOfCodePuzzle {
     // part 02
 
     @Override
-    public Number solveSecondPart() {
-        // TODO solveSecondPart()
-        return 0;
+    public Long solveSecondPart() {
+        for (String inputLine : getInitProgramLines()) {
+            Matcher setMaskMatcher = SET_MASK_INSTRUCTION_PATTERN.matcher(inputLine);
+            Matcher setMemoryMatcher = SET_MEMORY_INSTRUCTION_PATTERN.matcher(inputLine);
+            if (setMaskMatcher.matches()) {
+                this.bitMask = setMaskMatcher.group(1);
+            } else if (setMemoryMatcher.matches()) {
+                long memoryAddress = Long.parseLong(setMemoryMatcher.group(1));
+                long value = Long.parseLong(setMemoryMatcher.group(2));
+                applyBitMaskOnMemory(memoryAddress).forEach(memAddress -> memory.put(memAddress, value));
+            } else {
+                throw new IllegalArgumentException("unknown instruction: " + inputLine);
+            }
+        }
+        return totalMemorySum();
+    }
+
+    private LongStream applyBitMaskOnMemory(long memoryAddress) {
+        StringBuilder valueBinary = toBinaryString(memoryAddress);
+        System.out.printf("value:  %s  (decimal %d)%n", valueBinary, memoryAddress);
+        System.out.printf("mask:   %s%n", bitMask);
+        for (int i = 0; i < valueBinary.length(); i++) {
+            char c = bitMask.charAt(i);
+            if (c == '1' || c == 'X') {
+                valueBinary.setCharAt(i, c);
+            }
+        }
+        System.out.printf("result: %s%n", valueBinary);
+        return allBuildableMemoryAddress(valueBinary, 0);
+    }
+
+    private LongStream allBuildableMemoryAddress(StringBuilder valueBinary, int index) {
+        if (index >= valueBinary.length()) {
+            long memoryAddress = Long.parseLong(valueBinary.toString(), 2);
+            return LongStream.of(memoryAddress);
+        }
+        if (valueBinary.charAt(index) == 'X') {
+            StringBuilder valueBinaryWith0 = new StringBuilder(valueBinary);
+            valueBinaryWith0.setCharAt(index, '0');
+            LongStream memoryAddressesWith0 = allBuildableMemoryAddress(valueBinaryWith0, index + 1);
+
+            StringBuilder valueBinaryWith1 = new StringBuilder(valueBinary);
+            valueBinaryWith1.setCharAt(index, '1');
+            LongStream memoryAddressesWith1 = allBuildableMemoryAddress(valueBinaryWith1, index + 1);
+            return LongStream.concat(memoryAddressesWith1, memoryAddressesWith0);
+        } else {
+            return allBuildableMemoryAddress(valueBinary, index + 1);
+        }
+    }
+
+
+    private StringBuilder withCharAt(StringBuilder sb, int index, char ch) {
+        sb = new StringBuilder(sb);
+        sb.setCharAt(index, ch);
+        return sb;
     }
 
 
