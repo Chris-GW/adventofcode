@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class AdventOfCodeDay14Test {
+public class DockingProgramTest {
 
     @Test
     public void solveFirstPart_example() {

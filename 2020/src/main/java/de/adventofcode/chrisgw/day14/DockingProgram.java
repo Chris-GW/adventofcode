@@ -127,13 +127,6 @@ public class DockingProgram extends AdventOfCodePuzzle {
     }
 
 
-    private StringBuilder withCharAt(StringBuilder sb, int index, char ch) {
-        sb = new StringBuilder(sb);
-        sb.setCharAt(index, ch);
-        return sb;
-    }
-
-
     public List<String> getInitProgramLines() {
         return getInputLines();
     }
