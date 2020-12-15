@@ -3,8 +3,9 @@ package de.adventofcode.chrisgw.day15;
 import de.adventofcode.chrisgw.AdventOfCodePuzzle;
 
 import java.time.Year;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -13,45 +14,43 @@ import java.util.stream.Collectors;
  */
 public class AdventOfCodeDay15 extends AdventOfCodePuzzle {
 
-    private List<Integer> spokenNumbers;
+    private int currentTurn;
+    private int lastNumber;
+    private Map<Integer, Integer> spokenNumbers = new HashMap<>();
+
 
     public AdventOfCodeDay15(List<Integer> startingNumbers) {
         super(Year.of(2020), 15,
                 List.of(startingNumbers.stream().map(String::valueOf).collect(Collectors.joining(","))));
-        spokenNumbers = new ArrayList<>(startingNumbers);
+        for (int i = 0; i < startingNumbers.size() - 1; i++) {
+            spokenNumbers.put(startingNumbers.get(i), i + 1);
+        }
+        currentTurn = startingNumbers.size();
+        lastNumber = startingNumbers.get(startingNumbers.size() - 1);
     }
 
 
     @Override
     public Integer solveFirstPart() {
-        while (!spokenNumbers.isEmpty() && spokenNumbers.size() < 2020) {
-            int lastNumber = getLastNumber();
-            int lastSpokenNumber = findSpokenNumber(lastNumber);
-            spokenNumbers.add(lastSpokenNumber);
-        }
-        return getLastNumber();
+        return solveTill(2020);
     }
-
-    private int getLastNumber() {
-        return spokenNumbers.get(spokenNumbers.size() - 1);
-    }
-
-    private int findSpokenNumber(int lastNumber) {
-        for (int i = spokenNumbers.size() - 2; i >= 0; i--) {
-            int number = spokenNumbers.get(i);
-            if (number == lastNumber) {
-                return spokenNumbers.size() - i - 1;
-            }
-        }
-        return 0;
-    }
-
-
-    // part 02
 
     @Override
-    public Number solveSecondPart() {
-        return 0;
+    public Integer solveSecondPart() {
+        return solveTill(30_000_000);
+    }
+
+
+    private int solveTill(int playedTurns) {
+        while (this.currentTurn < playedTurns) {
+            int lastSpokenNumber = spokenNumbers.getOrDefault(lastNumber, 0);
+            if (lastSpokenNumber > 0) {
+                lastSpokenNumber = currentTurn - lastSpokenNumber;
+            }
+            spokenNumbers.put(lastNumber, currentTurn++);
+            lastNumber = lastSpokenNumber;
+        }
+        return lastNumber;
     }
 
 }

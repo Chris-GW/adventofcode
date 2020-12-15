@@ -1,6 +1,5 @@
 package de.adventofcode.chrisgw.day15;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -86,12 +85,23 @@ public class AdventOfCodeDay15Test {
     // part 02
 
     @Test
-    public void solveSecondPart_example() {
-    }
+    public void solveSecondPart_example01() {
+        int expectedSolution = 175594;
 
+        List<Integer> startingNumbers = List.of(0, 3, 6);
+        AdventOfCodeDay15 aoc15 = new AdventOfCodeDay15(startingNumbers);
+        int solution = aoc15.solveSecondPart();
+        assertEquals("solveFirstPart", expectedSolution, solution);
+    }
 
     @Test
     public void solveSecondPart_myPuzzleInput() {
+        int expectedSolution = 48710;
+
+        List<Integer> startingNumbers = List.of(6,13,1,15,2,0);
+        AdventOfCodeDay15 aoc15 = new AdventOfCodeDay15(startingNumbers);
+        int solution = aoc15.solveSecondPart();
+        assertEquals("solveFirstPart", expectedSolution, solution);
     }
 
 }
