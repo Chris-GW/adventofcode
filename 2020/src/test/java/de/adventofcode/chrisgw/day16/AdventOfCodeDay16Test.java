@@ -45,4 +45,38 @@ public class AdventOfCodeDay16Test {
         assertEquals("solveFirstPart", expectedSolution, solution);
     }
 
+
+    // part 02
+
+    @Test
+    public void solveSecond_example01() {
+        List<String> exampleInputLines = List.of( //
+                "class: 0-1 or 4-19", //
+                "row: 0-5 or 8-19", //
+                "seat: 0-13 or 16-19", //
+                "", //
+                "your ticket:", //
+                "11,12,13", //
+                "", //
+                "nearby tickets:", //
+                "3,9,18", //
+                "15,1,5", //
+                "5,14,9");
+        long expectedSolution = 1;
+
+        AdventOfCodeDay16 aoc16 = new AdventOfCodeDay16(exampleInputLines);
+        long solution = aoc16.solveSecondPart();
+        assertEquals("solveFirstPart", expectedSolution, solution);
+    }
+
+    @Test
+    public void solveSecondPart_myPuzzleInput() {
+        long expectedSolution = 1;
+
+        List<String> inputLines = TestUtils.readAllLinesOfClassPathResource("/puzzleInputDay16.txt");
+        AdventOfCodeDay16 aoc16 = new AdventOfCodeDay16(inputLines);
+        long solution = aoc16.solveSecondPart();
+        assertEquals("solveFirstPart", expectedSolution, solution);
+    }
+
 }

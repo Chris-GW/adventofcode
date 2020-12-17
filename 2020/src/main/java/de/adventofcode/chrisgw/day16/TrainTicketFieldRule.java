@@ -43,4 +43,8 @@ public class TrainTicketFieldRule implements IntPredicate {
     }
 
 
+    public boolean isDepartureField() {
+        return fieldName.startsWith("departure ");
+    }
+
 }
